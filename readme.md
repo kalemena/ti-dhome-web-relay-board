@@ -20,12 +20,11 @@ Specifications:
 
 Here are described step by step experiments to reach final product.
 
-[##1 Setup ESP8266 board in Arduino IDE](iterations/1-setup-arduino-ide-for-esp8266)
-
-https://github.com/esp8266/Arduino
+[##1 Setup ESP8266 board in Arduino IDE](iterations/1-setup-arduino-ide-for-esp8266.md)
 
 
 [##2 Hello ESP8266 Wifi](iterations/1-wifi-esp8266)
+
 http://www.esp8266.com/viewtopic.php?f=29&t=2153
 
 
