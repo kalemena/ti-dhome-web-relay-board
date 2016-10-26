@@ -46,7 +46,7 @@ void loop() {
 
 LED should blink as shown below:
 
-![NodeMCU Blink](esp8266-led.png)
+![NodeMCU Blink](esp8266-led.jpg)
 
 
 - Control a Wifi LED
