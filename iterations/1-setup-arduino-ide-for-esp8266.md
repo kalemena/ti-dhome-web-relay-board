@@ -51,7 +51,12 @@ LED should blink as shown below:
 
 - Control a Wifi LED
 
-Upload sketch found at [ESP8266 LED WIFI](/sketches/esp8266-led-wifi)
+ - Upload sketch found at [ESP8266 LED WIFI](/sketches/esp8266-led-wifi) with changing Wifi network settings
+ - Open Serial Consoleon Arduino IDE
+ - Ensure from logs that NodeMCU connected to local Wifi
+ - Browse to IP address logged out
+ - Click on button to switch led On and Off
+
 
 ![NodeMCU Blink Wifi](esp8266-led-wifi.png)
 
