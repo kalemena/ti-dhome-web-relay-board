@@ -54,3 +54,10 @@ LED should blink as shown below:
 Upload sketch found at [ESP8266 LED WIFI](/sketches/esp8266-led-wifi)
 
 ![NodeMCU Blink Wifi](esp8266-led-wifi.png)
+
+
+# Resources
+
+## Node MCU Pin Layout
+
+![Node MCU Pin Layout](nodemcudevkit_v1-0_io.jpg)
