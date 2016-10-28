@@ -26,7 +26,7 @@ In Arduino IDE, select proper board, example:
 - CPU 160 MHz
 - <correct USB device>
 
-Create sketch such as the [ESP8266 LED](/sketches/esp8266-led)
+Create sketch such as the [ESP8266 LED](/sketches/esp8266-led/esp8266-led.ino)
 
 ```js
 void setup() {
@@ -51,7 +51,7 @@ LED should blink as shown below:
 
 - Control a Wifi LED
 
- - Upload sketch found at [ESP8266 LED WIFI](/sketches/esp8266-led-wifi) with changing Wifi network settings
+ - Upload sketch found at [ESP8266 LED WIFI](/sketches/esp8266-led-wifi/esp8266-led-wifi.ino) with changing Wifi network settings
  - Open Serial Consoleon Arduino IDE
  - Ensure from logs that NodeMCU connected to local Wifi
  - Browse to IP address logged out
