@@ -5,9 +5,18 @@ Breadboard prototype done at [02 Relay Board Prototype](iterations/2-relay-board
 
 Now is time for a bit of coding.
 
+# How-To
 
-[Basic sketch](/sketches/esp8266-web-relay-wifi/esp8266-web-relay-wifi.ino)
+Here is the first [Basic sketch](/sketches/esp8266-web-relay-wifi/esp8266-web-relay-wifi.ino)
 
+Details of mathematics in next section.
+
+
+Steps:
+- Uploaded from Arduino IDE
+- Open Arduino console
+- This should log the URL with IP address to connect to Wifi device
+- connect using browser to see the table where you can switch on and off the relays
 
 
 # Mathematics
