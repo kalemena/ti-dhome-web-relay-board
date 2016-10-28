@@ -54,5 +54,6 @@ __We now have 16 I/Os !__
 ![Breadboard NodeMCU](/res/web-relay-board-nodemcu.png)
 
 
-# Sketch
+# Resources
 
+- [ESP8266 8x8 matrix](http://www.instructables.com/id/NODEMCU-LUA-ESP8266-With-74HC595-LED-and-Matrix-Dr/step2/ESP8266-driving-dual-595s-with-8-x-8-Matrix/)
