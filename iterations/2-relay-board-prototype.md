@@ -10,6 +10,9 @@ Using Node MCU for Wifi, there are few remaining constraints:
 > This components enables use of 3 GPIOs to be used in serial protocol to handle in our case the 16 outputs requires for relay board
 
 
+![Breadboard NodeMCU](/res/breadboard-nodemcu.png)
+
+
 # Procedure
 
 Few more details
