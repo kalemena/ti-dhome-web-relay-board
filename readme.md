@@ -38,6 +38,8 @@ Here are described step by step experiments to reach final product.
 
 - [02 Relay Board Prototype](iterations/2-relay-board-prototype.md)
 
+- [03 Relay Board Sketch](iterations/3-relay-board-sketch.md)
+
 
 # TODO
 
