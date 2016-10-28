@@ -41,17 +41,14 @@ Here are described step by step experiments to reach final product.
 - [03 Relay Board Sketch](iterations/3-relay-board-sketch.md)
 
 
+
 # TODO
+
+- more advanced sketch using static file (cached), images, web sockets?, etc
 
 - switch to ESP12 instead of NodeMCU
 
 - create PCB
 
 - create plastic box
-
-
-http://www.esp8266.com/viewtopic.php?f=29&t=2153
-https://www.arduino.cc/en/Tutorial/ShftOut11
-
-
 
