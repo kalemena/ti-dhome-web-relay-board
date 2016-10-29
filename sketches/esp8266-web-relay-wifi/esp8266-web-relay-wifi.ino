@@ -15,6 +15,24 @@ unsigned int relayState = 0;
 // Node MCU
 ESP8266WebServer server(port);
 
+/**
+Value is anything between 0 to 65535 representing 16 bits of data I/Os
+*/
+void switchRelay(int value) 
+{
+   // take the latchPin low so 
+   // the LEDs don't change while you're sending in bits:
+   digitalWrite(latchPin, LOW);
+   
+   // shift out the highbyte
+   shiftOut(dataPin, clockPin, MSBFIRST, (value >> 8));
+   // shift out the lowbyte
+   shiftOut(dataPin, clockPin, MSBFIRST, value);
+   
+   //take the latch pin high so the LEDs will light up:
+   digitalWrite(latchPin, HIGH);
+}
+
 void handle_root() {  
   String result = "<!DOCTYPE HTML>";
   result += "<html>";
@@ -105,22 +123,4 @@ void setup() {
  
 void loop() {
   server.handleClient();
-}
-
-/**
-Value is anything between 0 to 65535 representing 16 bits of data I/Os
-*/
-void switchRelay(int value) 
-{
-   // take the latchPin low so 
-   // the LEDs don't change while you're sending in bits:
-   digitalWrite(latchPin, LOW);
-   
-   // shift out the highbyte
-   shiftOut(dataPin, clockPin, MSBFIRST, (value >> 8));
-   // shift out the lowbyte
-   shiftOut(dataPin, clockPin, MSBFIRST, value);
-   
-   //take the latch pin high so the LEDs will light up:
-   digitalWrite(latchPin, HIGH);
 }
