@@ -40,6 +40,7 @@ Here are described step by step experiments to reach final product.
 
 - [03 Relay Board Sketch](iterations/3-relay-board-sketch.md)
 
+- [04 Relay Board Sketch Advanced](iterations/4-relay-board-sketch-2.md)
 
 
 # TODO
