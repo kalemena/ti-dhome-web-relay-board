@@ -19,7 +19,7 @@
   for file in `ls -A1`; do curl -F "file=@$PWD/$file" esp8266fs.local/edit; done
   
   access the sample web page at http://iotrelays.local
-  edit the page by going to http://esp8266fs.local/edit
+  edit the page by going to http://iotrelays.local/edit
 */
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -27,16 +27,17 @@
 #include <ESP8266mDNS.h>
 #include <FS.h>
 
-const char* ssid = "<ssid>";
-const char* password = "<passphrase>";
+#define DEBUG false
+#define Serial if(DEBUG)Serial
+
+const char* ssid = "tango";
+const char* password = "C1LonguePhraseARetenir. MeJAriv!";
 const char* host = "iotrelays";
 
 // 74HC595
-int latchPin = 15;
-int clockPin = 14;
-int dataPin = 13;
-
-boolean isDebug = true;
+int latchPin = 2; // 15;
+int clockPin = 5; // 14;
+int dataPin = 4;  // 13;
 
 ESP8266WebServer server(80);
 //holds the current upload
@@ -250,7 +251,8 @@ void handle_switch() {
 void setup(void){
   Serial.begin(115200);
   Serial.print("\n");
-  Serial.setDebugOutput(true);
+  Serial.setDebugOutput(DEBUG);
+  
   SPIFFS.begin();
   {
     Dir dir = SPIFFS.openDir("/");
@@ -269,7 +271,7 @@ void setup(void){
   pinMode(latchPin, OUTPUT);
   pinMode(clockPin, OUTPUT);
   pinMode(dataPin, OUTPUT);
-  
+
   // Connect to WiFi network
   Serial.printf("\nConnecting to %s\n", ssid);
   if (String(WiFi.SSID()) != String(ssid)) {
@@ -283,11 +285,11 @@ void setup(void){
   Serial.println("");
   Serial.print("Connected! IP address: ");
   Serial.println(WiFi.localIP());
-
+  
   MDNS.begin(host);
   Serial.print("Open http://"); Serial.print(host); Serial.println(" to see relays status");
   Serial.print("Open http://"); Serial.print(host); Serial.println(".local/edit to see the file browser");
-    
+      
   // Initialize Controllers
   // list directory
   server.on("/list", HTTP_GET, handleFileList);
