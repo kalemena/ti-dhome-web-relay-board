@@ -1,7 +1,7 @@
 
 # Relay board sketch
 
-Breadboard prototype done at [02 Relay Board Prototype](iterations/2-relay-board-prototype.md)
+Breadboard prototype done at [02 Relay Board Prototype](/iterations/2-relay-board-prototype.md)
 
 Now is time for a bit of coding.
 
