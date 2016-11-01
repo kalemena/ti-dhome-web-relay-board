@@ -12,6 +12,9 @@ __Specifications__:
 - REST API
 - Wifi
 
+![Breadboard video](/res/breadboard-video.gif)
+
+
 # BOM
 
 __Total ~ 20€__
