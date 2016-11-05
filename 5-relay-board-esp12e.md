@@ -1,9 +1,9 @@
 
-# ESP8266 - 12E
+## 5 - ESP8266 - 12E
 
 Switch from NodeMCU to ESP12E.
 
-# Resources
+### Resources
 
 http://arduino-er.blogspot.fr/2015/05/fit-esp-12-breakout-board-on-breadboard.html
 

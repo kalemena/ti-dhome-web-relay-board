@@ -1,5 +1,5 @@
 
-# Breadboard relay board
+## 2 - Breadboard relay board
 
 Using Node MCU for Wifi, there are few remaining constraints:
 
@@ -12,22 +12,22 @@ Using Node MCU for Wifi, there are few remaining constraints:
 
 Photo (:bell: only relay 8 to 15):
 
-![Breadboard NodeMCU](/res/breadboard-nodemcu.png)
+![Breadboard NodeMCU](res/breadboard-nodemcu.png)
 
 
 Fritzing picture:
 
-![Breadboard NodeMCU](/res/web-relay-board-nodemcu.png)
+![Breadboard NodeMCU](res/web-relay-board-nodemcu.png)
 
 
 
-# Procedure
+### Procedure
 
 Few more details
 
-## 74HC595
+#### 74HC595
 
-![74HC595 pins](/res/74HC595-pins.png)
+![74HC595 pins](res/74HC595-pins.png)
 
 
 We will use 3 pins from Node MCU:
@@ -47,9 +47,9 @@ We will use 3 pins from Node MCU:
 __We now have 16 I/Os !__
 
 
-## ULN2803
+#### ULN2803
 
-![ULN2803 pins](/res/ULN2803-pins.jpg)
+![ULN2803 pins](res/ULN2803-pins.jpg)
 
 
 | 74HC595       | ULN2803       | Comment  |
@@ -59,6 +59,6 @@ __We now have 16 I/Os !__
 | Q0 to Q7   | 1 to 8        | Outputs   |
 
 
-# Resources
+### Resources
 
 - [ESP8266 8x8 matrix](http://www.instructables.com/id/NODEMCU-LUA-ESP8266-With-74HC595-LED-and-Matrix-Dr/step2/ESP8266-driving-dual-595s-with-8-x-8-Matrix/)

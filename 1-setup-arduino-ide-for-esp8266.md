@@ -1,5 +1,5 @@
 
-# Installation
+## 1 - Setup ESP8266 board in Arduino IDE
 
 We want the development to be as simple as possible, leveraging Arduino IDE.
 
@@ -7,16 +7,16 @@ Follow this guide to setup ESP8266 board in Arduino IDE: https://github.com/esp8
 
 Documentation is here: http://esp8266.github.io/Arduino/versions/2.3.0/
 
-# Procedure
+### Procedure
 
 - Import ESP Board into Arduino IDE
 
-![Import ESP Boards](esp8266-board.png)
+![Import ESP Boards](res/esp8266-board.png)
 
 
 - Load the Libraries for ESP8266
 
-![Load ESP libraries](esp8266-libs.png)
+![Load ESP libraries](res/esp8266-libs.png)
 
 
 - Load sample _hello_ app into NodeMCU
@@ -26,7 +26,7 @@ In Arduino IDE, select proper board, example:
 - CPU 160 MHz
 - <correct USB device>
 
-Create sketch such as the [ESP8266 LED](/sketches/esp8266-led/esp8266-led.ino)
+Create sketch such as the [ESP8266 LED](sketches/esp8266-led/esp8266-led.ino)
 
 ```js
 void setup() {
@@ -46,23 +46,23 @@ void loop() {
 
 LED should blink as shown below:
 
-![NodeMCU Blink](esp8266-led.jpg)
+![NodeMCU Blink](res/esp8266-led.jpg)
 
 
 - Control a Wifi LED
 
- - Upload sketch found at [ESP8266 LED WIFI](/sketches/esp8266-led-wifi/esp8266-led-wifi.ino) with changing Wifi network settings
+ - Upload sketch found at [ESP8266 LED WIFI](sketches/esp8266-led-wifi/esp8266-led-wifi.ino) with changing Wifi network settings
  - Open Serial Consoleon Arduino IDE
  - Ensure from logs that NodeMCU connected to local Wifi
  - Browse to IP address logged out
  - Click on button to switch led On and Off
 
 
-![NodeMCU Blink Wifi](esp8266-led-wifi.png)
+![NodeMCU Blink Wifi](res/esp8266-led-wifi.png)
 
 
-# Resources
+### Resources
 
-## Node MCU Pin Layout
+#### Node MCU Pin Layout
 
-![Node MCU Pin Layout](nodemcudevkit_v1-0_io.jpg)
+![Node MCU Pin Layout](res/nodemcudevkit_v1-0_io.jpg)

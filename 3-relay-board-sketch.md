@@ -1,13 +1,13 @@
 
-# Relay board sketch
+## 3 - Relay board sketch
 
-Breadboard prototype done at [02 Relay Board Prototype](/iterations/2-relay-board-prototype.md)
+Breadboard prototype done at [02 Relay Board Prototype](2-relay-board-prototype.md)
 
 Now is time for a bit of coding.
 
-# How-To
+### How-To
 
-Here is the first [Basic sketch](/sketches/esp8266-web-relay-wifi/esp8266-web-relay-wifi.ino)
+Here is the first [Basic sketch](sketches/esp8266-web-relay-wifi/esp8266-web-relay-wifi.ino)
 
 Details of mathematics in next section.
 
@@ -19,9 +19,9 @@ Steps:
 - connect using browser to see the table where you can switch on and off the relays
 
 
-# Mathematics
+### Mathematics
 
-## Binary computation
+#### Binary computation
 
 We have wired 16 outputs.
 
@@ -44,7 +44,7 @@ relayState &= ~(1 << relayNb);
 relayState |= (1 << relayNb);
 ```
 
-## 74HC595 - ShiftOut
+#### 74HC595 - ShiftOut
 
 The [74HC595 ShiftOut](https://www.arduino.cc/en/Reference/ShiftOut) states that it is 8 bit and requires two steps operation to shift bits.
 
@@ -66,7 +66,7 @@ void switchRelay(int value)
 ```
 
 
-# Resources
+### Resources
 
 
 - [74HC595 ShiftOut](https://www.arduino.cc/en/Reference/ShiftOut)

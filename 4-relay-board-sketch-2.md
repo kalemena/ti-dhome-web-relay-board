@@ -1,7 +1,7 @@
 
-# Relay board sketch
+## 4 -  Relay board sketch
 
-[First sketch](/iterations/3-relay-board-sketch.md) is not very efficient.
+[First sketch](3-relay-board-sketch.md) is not very efficient.
 
 It only touched simple ESP8266 capability.
 
@@ -12,9 +12,9 @@ This iteration is about going deeper into the topic:
 - web sockets
 
 
-# Steps
+### Steps
 
-## Un coup dans le 'SPIFFS'
+#### Un coup dans le 'SPIFFS'
 
 To leverage most of the 4MB disk from ESP8266, install plugin:
 
@@ -27,11 +27,11 @@ Usage is pretty simple:
 - this takes very long as it uploads ~ 3MB (no matter what)
 
 
-# Sketch details
+#### Sketch details
 
 
 
 
 
-# Resources
+### Resources
 
