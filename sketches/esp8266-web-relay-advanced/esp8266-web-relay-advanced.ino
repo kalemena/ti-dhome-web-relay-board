@@ -30,8 +30,8 @@
 #define DEBUG false
 #define Serial if(DEBUG)Serial
 
-const char* ssid = "tango";
-const char* password = "C1LonguePhraseARetenir. MeJAriv!";
+const char* ssid = "<ssid>";
+const char* password = "<password>";
 const char* host = "iotrelays";
 
 // 74HC595
