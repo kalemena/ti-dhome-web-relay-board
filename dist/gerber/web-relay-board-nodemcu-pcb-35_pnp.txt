@@ -1,0 +1,51 @@
+*Pick And Place List
+*Company=
+*Author=
+*eMail=
+*
+*Project=web-relay-board-nodemcu-pcb-35
+*Date=22:00:22
+*CreatedBy=Fritzing 0.9.2b.11.19.8d2d5970658f0bed09c661c9ea9a515b5f40f44c
+*
+*
+*Coordinates in mm, always center of component
+*Origin 0/0=Lower left corner of PCB
+*Rotation in degree (0-360, math. pos.)
+*
+*No;Value;Package;X;Y;Rotation;Side;Name
+1;500mA per channel;dil18;37.9302;-12.656;90;Bottom; 1
+2;;;48.0901;-18.3709;0;Top;10
+3;;;12.8477;-17.1107;0;Bottom;WeMos D1 Mini1
+4;;;48.0901;-23.4509;0;Top;14
+5;;;45.8677;-3.13102;0;Bottom;Via25
+6;;;48.0901;-18.3709;0;Bottom;9
+7;;dil16;34.1202;-36.786;-90;Bottom; 2
+8;;;48.0901;-8.21093;0;Bottom;1
+9;;;26.5001;-40.596;0;Bottom;Via30
+10;;;48.0901;-20.9109;0;Top;12
+11;1k;THT;7.13269;-42.1835;180;Bottom;1k2
+12;;;27.4526;-38.056;0;Bottom;Via32
+13;;DIP (Dual Inline) [THT];13.4827;-46.311;180;Bottom;SFH
+14;;;48.0901;-5.67093;0;Bottom;5v
+15;;;48.0901;-28.531;0;Top;GND
+16;;;48.0901;-13.2909;0;Top;6
+17;;;7.13259;-24.4036;0;Bottom;Via34
+18;;;48.0901;-15.8309;0;Bottom;7
+19;;;27.4526;-13.9261;0;Bottom;Via31
+20;;;48.0901;-10.7509;0;Bottom;3
+21;;;48.0901;-13.2909;0;Bottom;5
+22;;;48.0901;-10.7509;0;Top;4
+23;;;48.0901;-5.67093;0;Top;5v
+24;;THT;13.1652;-24.4035;-90;Bottom;HTU21D
+25;;;48.0901;-25.9909;0;Bottom;15
+26;500mA per channel;dil18;37.9302;-37.1035;90;Bottom; 2
+27;;;43.3276;-49.1685;0;Bottom;Via26
+28;;;48.0901;-28.531;0;Bottom;GND
+29;3.3k;THT;12.2127;-39.961;180;Bottom;3k3
+30;;;48.0901;-8.21093;0;Top;2
+31;;;48.0901;-23.4509;0;Bottom;13
+32;;;48.0901;-20.9109;0;Bottom;11
+33;;;48.0901;-25.9909;0;Top;16
+34;;THT;3.13219;-46.184;180;Bottom; 
+35;;;48.0901;-15.8309;0;Top;8
+36;;dil16;34.1202;-12.656;-90;Bottom; 1
