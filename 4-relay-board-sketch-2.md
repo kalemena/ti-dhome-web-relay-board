@@ -1,5 +1,5 @@
 
-## 4 -  Relay board sketch
+## 4 - Relay board sketch
 
 [First sketch](3-relay-board-sketch.md) is not very efficient.
 
@@ -29,9 +29,13 @@ Usage is pretty simple:
 
 #### Sketch details
 
+The sketch can be found under [web-relay-advanced](sketches/esp8266-web-relay-advanced) folder.
 
+This is a basic sketch from SPIFFS example, with addition of relay web services.
 
-
+SPIFFS is used only to load SVG images to be displayed on URL /index.htm.
 
 ### Resources
+
+
 
