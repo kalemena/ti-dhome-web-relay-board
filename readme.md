@@ -18,7 +18,7 @@ __Specifications__:
 
 PCB sample can be found under [dist folder](dist)
 
-![PCB Sample](res/web-relay-board-nodemcu-pcb1.png =240x)
+![PCB Sample](res/web-relay-board-nodemcu-pcb1.png){:width="240px"}
 
 
 # Electric panel
