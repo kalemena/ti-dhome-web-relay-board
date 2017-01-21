@@ -18,7 +18,7 @@ __Specifications__:
 
 PCB sample can be found under [dist folder](dist)
 
-![PCB Sample](res/web-relay-board-nodemcu-pcb1.png)
+![PCB Sample](res/web-relay-board-nodemcu-pcb1.png =240x)
 
 
 # Electric panel
@@ -73,6 +73,8 @@ Here are described step by step experiments to reach final product.
 - [04 Relay Board Sketch Advanced](4-relay-board-sketch-2.md)
 
 - [05 Relay Board ESP12E](5-relay-board-esp12e.md)
+
+- [06 Relay Board PCB](6-relay-board-pcb1.md)
 
 
 
