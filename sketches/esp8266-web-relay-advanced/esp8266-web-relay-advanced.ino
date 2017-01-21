@@ -27,7 +27,7 @@
 #include <ESP8266mDNS.h>
 #include <FS.h>
 
-#define DEBUG false
+#define DEBUG true
 #define Serial if(DEBUG)Serial
 
 const char* ssid = "<ssid>";
@@ -35,9 +35,9 @@ const char* password = "<password>";
 const char* host = "iotrelays";
 
 // 74HC595
-int latchPin = 2; // 15;
-int clockPin = 5; // 14;
-int dataPin = 4;  // 13;
+int latchPin = 15;
+int clockPin = 12;
+int dataPin = 13;
 
 ESP8266WebServer server(80);
 //holds the current upload
@@ -226,11 +226,29 @@ void handle_status() {
   json += " \"relays\":" + String(analogRead(A0)) + "],\n";
   json += " \"gpio\":"+String((uint32_t)(((GPI | GPO) & 0xFFFF) | ((GP16I & 0x01) << 16))) + ",\n";
   json += "}";
-  server.send(200, "text/json", json);
+  server.send(200, "application/json", json);
+  json = String();
+}
+
+void handle_gpios_status() {  
+  String json = "[\n";
+  for (int switchId = 0; switchId < 16; switchId++) {
+    boolean switchState = ((relayState >> switchId) & 1);
+    if(switchId != 0)
+      json += ",\n";
+    json += " { \"switch\":" + String(switchId) + ", \"value\":" + String(switchState) + " }";    
+  }
+  json += "\n]";  
+  server.send(200, "application/json", json);
   json = String();
 }
 
 void handle_switch() {
+  if(!server.hasArg("id")) {
+    handle_root();
+    return;
+  }
+    
   int relayNb = server.arg("id").toInt();
   int thisRelayState = (relayState >> relayNb) & 1;
   
@@ -244,8 +262,30 @@ void handle_switch() {
   Serial.println("Relays = " + String(relayState));  
   switchRelay(relayState);
    
-  //server.send(200, "text/plain", "");
+  // reload page
   handle_root();
+}
+
+void handle_gpios_switch() {
+  if(!server.hasArg("id")) {    
+    server.send(200, "text/plain", "Bad Parameter");
+    return;
+  }
+  
+  int relayNb = server.arg("id").toInt();
+  int thisRelayState = (relayState >> relayNb) & 1;
+  
+  Serial.println("Relay " + String(relayNb) + "=" + String(thisRelayState));
+  
+  if(thisRelayState == 0)
+    relayState |= (1 << relayNb);
+  else
+    relayState &= ~(1 << relayNb);
+  
+  Serial.println("Relays = " + String(relayState));  
+  switchRelay(relayState);
+   
+  server.send(200, "text/plain", "");  
 }
 
 void setup(void){
@@ -307,6 +347,8 @@ void setup(void){
   server.on("/status", HTTP_GET, handle_status);
   server.on("/test", HTTP_GET, handle_test);
   server.on("/switch", HTTP_GET, handle_switch);
+  server.on("/gpios/status", HTTP_GET, handle_gpios_status);
+  server.on("/gpios/switch", HTTP_GET, handle_gpios_switch);
 
   // static files
   server.serveStatic("/favicon.ico", SPIFFS, "/favicon.ico");
