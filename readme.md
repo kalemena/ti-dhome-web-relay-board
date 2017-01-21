@@ -14,6 +14,19 @@ __Specifications__:
 
 ![Breadboard video](res/breadboard-video.gif)
 
+# PCB sample
+
+PCB sample can be found under [dist folder](dist)
+
+![PCB Sample](res/web-relay-board-nodemcu-pcb1.png)
+
+
+# Electric panel
+
+First integration of PCB into electric panel
+
+![Electric panel Web Relays](res/web-relay-board-nodemcu-in-place.png)
+
 
 # BOM
 
@@ -42,8 +55,6 @@ __Production:__
 - more advanced sketch using static file (cached), images, web sockets?, etc
 
 - switch to ESP12 instead of NodeMCU
-
-- create PCB
 
 - create plastic box
 
