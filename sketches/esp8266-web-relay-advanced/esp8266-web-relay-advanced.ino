@@ -39,6 +39,9 @@ int latchPin = 15;
 int clockPin = 12;
 int dataPin = 13;
 
+#define ARRAYSIZE 16
+String sensors[ARRAYSIZE] = { "Ch. Jeux", "Bureau", "Ch. Léna", "Ch. Damien", "SdB Haut", "Mezanine", "Ch. Bas", "SdB Bas", "NA", "NA", "NA", "NA", "NA", "NA", "Salon", "Hall" };
+
 ESP8266WebServer server(80);
 //holds the current upload
 File fsUploadFile;
@@ -190,15 +193,20 @@ void handle_root() {
   String result = 
     "<!DOCTYPE HTML> \
      <html>\
-      <table style=\"width:100%\">\
+      <head>\
+       <meta http-equiv=\"Content-type\" content=\"text/html\"; charset=utf-8\">\
+       <title>Web relays</title>\
+       <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">\
+      </head>\
+      <table>\
        <tr>\
-        <th>Switch Id</th>\
+        <th>Description</th>\
         <th>Status</th>\
        </tr>";
   for (int switchId = 0; switchId < 16; switchId++) {
     boolean switchState = ((relayState >> switchId) & 1);
     result += "<tr>";
-    result += "<td>" + String(switchId) + "</td>";
+    result += "<td>" + String(sensors[switchId]) + " (" + String(switchId) + ")" + "</td>";
     result += "<td><a href=\"/switch?id=" + String(switchId) + "\"><button>" + String(switchState == 0 ? "<img src=\"/off.svg\"" : "<img src=\"/on.svg\"") + " height=\"40\" width=\"32\"/></button></a></td>";
     result += "</tr>";
   }
@@ -236,7 +244,7 @@ void handle_gpios_status() {
     boolean switchState = ((relayState >> switchId) & 1);
     if(switchId != 0)
       json += ",\n";
-    json += " { \"switch\":" + String(switchId) + ", \"value\":" + String(switchState) + " }";    
+    json += " { \"description\": \"" + String(sensors[switchId]) + "\", \"switch\":" + String(switchId) + ", \"value\":" + String(switchState) + " }";    
   }
   json += "\n]";  
   server.send(200, "application/json", json);
