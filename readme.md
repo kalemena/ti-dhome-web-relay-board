@@ -12,7 +12,7 @@ __Specifications__:
 - REST API
 - Wifi
 
-![Breadboard video](res/breadboard-video.gif)
+![Breadboard video](./res/breadboard-video.gif)
 
 # PCB sample
 
