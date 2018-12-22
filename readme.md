@@ -36,8 +36,8 @@ Here is list of items to purchase:
 | ------------- |:-------------:|:--------:|
 | [SainSmart 16 relays](http://www.sainsmart.com/relay-1/16-channel-12v-relay-module-for-pic-arm-avr-dsp-arduino-msp430-ttl-logic.html)   | ~ 12€        | data     |
 | [ESP-12 8266](http://www.ebay.fr/itm/5119-ESP12-E-esp8266-module-wifi-sans-fils-ARDUINO-ESP8266-ESP12E-/191849920712)   | ~ 4€        |   |
-| [2x 74HC595](http://www.ebay.fr/itm/20-x-74HC595-8-bit-Shift-Register-IC-DIP-16-TEXAS-/260843227719)   | ~ 0.2€        | solde by 20 |
-| [2x ULN2803](http://www.ebay.fr/itm/20x-ULN2803APG-ULN2803-DIP-18-Transistor-TOSHIBA-DARLINGTON-ARRAYS-Buffer-Driver-/350899601550)   | ~ 0.12€       |  solde by 20  |
+| [2x 74HC595](http://www.ebay.fr/itm/20-x-74HC595-8-bit-Shift-Register-IC-DIP-16-TEXAS-/260843227719)   | ~ 0.2€        | sold by 20 |
+| [2x ULN2803](http://www.ebay.fr/itm/20x-ULN2803APG-ULN2803-DIP-18-Transistor-TOSHIBA-DARLINGTON-ARRAYS-Buffer-Driver-/350899601550)   | ~ 0.12€       |  sold by 20  |
 | __Total__  |  ~ 20€ | |
 
 
