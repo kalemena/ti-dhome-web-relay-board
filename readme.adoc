@@ -1,6 +1,9 @@
 
 = Web Relay Board
+
 :toc:
+
+== Description
 
 Web Relay Board is a connected IoT which allows to switch Main Power.
 
@@ -8,9 +11,9 @@ WARNING: Caution with 230v. Do not use high current.
 
 The Web Relay board uses HTTP/REST API as interface.
 
-Additionaly, simple Web UI is implemented on top of API.
+Additionaly, simple Web UI is implemented on top of the REST API.
 
-In practice, the Web Relay is used to manage heaters with data wire named link:http://www.planete-domotique.com/blog/2012/01/05/piloter-un-radiateur-grace-a-son-fil-pilote/[fil pilote] which is 230v at very low current.
+In practice, the Web Relay is used to manage electric heaters with data wire named link:http://www.planete-domotique.com/blog/2012/01/05/piloter-un-radiateur-grace-a-son-fil-pilote/[fil pilote] which is 230v at very low current.
 
 NOTE: This project is part of a wider link:https://github.com/kalemena/ti-dhome[TiDhome Home Automation] project.
 
@@ -76,9 +79,9 @@ Here is list of items to purchase:
 
 Here are described step by step experiments to reach final product.
 
-- <<1-setup-arduino-ide-for-esp8266.md,Iteration 1: Setup ESP8266 board in Arduino IDE>>
-- <<2-relay-board-prototype.md,Iteration 2: Relay Board Prototype>>
-- <<3-relay-board-sketch.md,Iteration 3: Relay Board Sketch>>
-- <<4-relay-board-sketch-2.md,Iteration 4: Relay Board Sketch Advanced>>
-- <<5-relay-board-esp12e.md,Iteration 5: Relay Board ESP12E>>
-- <<6-relay-board-pcb1.md,Iteration 6: Relay Board PCB>>
+- link:1-setup-arduino-ide-for-esp8266.md[Iteration 1: Setup ESP8266 board in Arduino IDE]
+- link:2-relay-board-prototype.md[Iteration 2: Relay Board Prototype]
+- link:3-relay-board-sketch.md[Iteration 3: Relay Board Sketch]
+- link:4-relay-board-sketch-2.md[Iteration 4: Relay Board Sketch Advanced]
+- link:5-relay-board-esp12e.md[Iteration 5: Relay Board ESP12E]
+- link:6-relay-board-pcb1.md[Iteration 6: Relay Board PCB]
