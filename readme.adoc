@@ -79,7 +79,7 @@ Here is list of items to purchase:
 
 Here are described step by step experiments to reach final product.
 
-- link:1-setup-arduino-ide-for-esp8266.md[Iteration 1: Setup ESP8266 board in Arduino IDE]
+- link:1-setup-arduino-ide-for-esp8266.adoc[Iteration 1: Setup ESP8266 board in Arduino IDE]
 - link:2-relay-board-prototype.md[Iteration 2: Relay Board Prototype]
 - link:3-relay-board-sketch.md[Iteration 3: Relay Board Sketch]
 - link:4-relay-board-sketch-2.md[Iteration 4: Relay Board Sketch Advanced]
