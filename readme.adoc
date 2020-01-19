@@ -85,4 +85,4 @@ Here are described step by step experiments to reach final product.
 - link:3-relay-board-sketch.adoc[Iteration 3: Relay Board Sketch]
 - link:4-relay-board-sketch-2.adoc[Iteration 4: Relay Board Sketch Advanced]
 - link:5-relay-board-esp12e.adoc[Iteration 5: Relay Board ESP12E (aborted)]
-- link:6-relay-board-pcb1.md[Iteration 6: Relay Board PCB]
+- link:6-relay-board-pcb1.adoc[Iteration 6: Relay Board PCB]
