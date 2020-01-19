@@ -1,35 +1,35 @@
+:toc:
 
-## 3 - Relay board sketch
+== 3 - Relay board sketch
 
-Breadboard prototype done at [02 Relay Board Prototype](2-relay-board-prototype.md)
+After breadboard prototype done at link:2-relay-board-prototype.adoc[02 Relay Board Prototype]
 
 Now is time for a bit of coding.
 
-### How-To
+=== How-To
 
-Here is the first [Basic sketch](sketches/esp8266-web-relay-wifi/esp8266-web-relay-wifi.ino)
+Here is the first link:sketches/esp8266-web-relay-wifi/esp8266-web-relay-wifi.ino[Basic sketch]
 
 Details of mathematics in next section.
 
-
 Steps:
+
 - Uploaded from Arduino IDE
 - Open Arduino console
 - This should log the URL with IP address to connect to Wifi device
-- connect using browser to see the table where you can switch on and off the relays
+- Connect using browser to see the table where you can switch on and off the relays
 
+=== Mathematics
 
-### Mathematics
-
-#### Binary computation
+==== Binary computation
 
 We have wired 16 outputs.
 
-This in turns can be mapped to an integer from 0 to 65535.
+The outputs can be mapped to an integer from 0 to 65535.
 
-In Arduino code, this means [__unsigned int__](https://www.arduino.cc/en/Reference/UnsignedInt).
+In Arduino code, this means link:https://www.arduino.cc/en/Reference/UnsignedInt[__unsigned int__]
 
-Let's see what this means from [Byte mathematics](http://playground.arduino.cc/Code/BitMath#quickref)
+Let's see what this means from link:http://playground.arduino.cc/Code/BitMath#quickref[Byte mathematics]
 
 ```js
 unsigned int relayState = 0;
@@ -44,9 +44,9 @@ relayState &= ~(1 << relayNb);
 relayState |= (1 << relayNb);
 ```
 
-#### 74HC595 - ShiftOut
+==== 74HC595 - ShiftOut
 
-The [74HC595 ShiftOut](https://www.arduino.cc/en/Reference/ShiftOut) states that it is 8 bit and requires two steps operation to shift bits.
+The link:https://www.arduino.cc/en/Reference/ShiftOut[74HC595 ShiftOut] states that it is 8 bit and requires two steps operation to shift bits.
 
 ```js
 // Value is anything between 0 to 65535 representing 16 bits of data I/Os
@@ -64,11 +64,3 @@ void switchRelay(int value)
    digitalWrite(latchPin, HIGH);
 }
 ```
-
-
-### Resources
-
-
-- [74HC595 ShiftOut](https://www.arduino.cc/en/Reference/ShiftOut)
-
-- [Byte mathematics](http://playground.arduino.cc/Code/BitMath#quickref)
