@@ -10,13 +10,5 @@ WARNING: This is aborted story, but it was interesting study! Instead ESP32 migh
 
 === Resources
 
-http://arduino-er.blogspot.fr/2015/05/fit-esp-12-breakout-board-on-breadboard.html
-
-http://myrobotlab.org/content/esp8266-12-series-wifi-modules-update-out-lua-arduino-ide
-
-
-| NodeMCU       | 74HC595       | Comment                |
-| ------------- |:-------------:|:----------------------:|
-| gpio13 (D7)   | pin 14        | data                   |
-| gpio14 (D5)   | pin 11        | clock (both 74HC595)   |
-| gpio15 (D8)   | pin 12        | latch (both 74HC595)   |
+* link:http://arduino-er.blogspot.fr/2015/05/fit-esp-12-breakout-board-on-breadboard.html[]
+* link:http://myrobotlab.org/content/esp8266-12-series-wifi-modules-update-out-lua-arduino-ide[]

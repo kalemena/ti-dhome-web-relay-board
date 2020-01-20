@@ -74,7 +74,7 @@ Here is list of items to purchase:
 
 - more advanced sketch using static file (cached), images, web sockets?, etc
 - switch to ESP12 instead of NodeMCU (Wemos)
-- create plastic box
+- create 3D-printed plastic box
 
 = Prototyping iterations
 
