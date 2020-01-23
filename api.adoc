@@ -1,0 +1,53 @@
+:toc:
+
+== API
+
+Below is API description with examples:
+
+=== GET /
+
+Main HTML page display simple button and status:
+
+image:res/web-interface.png[Web Relays UI]
+
+=== GET /status
+
+    $ curl -X GET http://192.168.1.56/status
+    {
+    "heap":35072,
+    "relays":5,
+    "gpio":49157
+    }
+
+=== GET /gpios/switch?id=x
+
+Specify id between 0 and 15:
+
+    $ curl -v http://192.168.1.56/gpios/switch?id=1 
+
+=== GET /gpios/status
+
+Get all values of relays:
+
+    $ curl -v http://192.168.1.56/gpios/status | jq .
+    [
+    {
+        "description": "Ch. Jeux",
+        "switch": 0,
+        "value": 0
+    },
+    {
+        "description": "Bureau",
+        "switch": 1,
+        "value": 0
+    },
+    {
+        "description": "Ch. Léna",
+        "switch": 2,
+        "value": 0
+    },
+    {
+        "description": "Ch. Damien",
+        "switch": 3,
+        ...
+

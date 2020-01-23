@@ -17,6 +17,10 @@ In practice, the Web Relay is used to manage electric heaters with data wire nam
 
 NOTE: This project is part of a wider link:https://github.com/kalemena/ti-dhome[TiDhome Home Automation] project.
 
+image:res/web-interface.png[Web Relays UI]
+
+To orchestrate by automated system, use the link:api.adoc[REST API]
+
 == Specifications
 
 - 16 relays (10 heaters are wired, plus 4 actuators)
