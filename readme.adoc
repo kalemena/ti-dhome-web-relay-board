@@ -1,7 +1,11 @@
 
-= Web Relay Board
-
 :toc:
+
+ifdef::env-github[]
+:imagesdir: /
+endif::[]
+
+= Web Relay Board
 
 == Description
 
