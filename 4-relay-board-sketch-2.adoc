@@ -29,7 +29,7 @@ Usage is pretty simple:
 
 ==== Sketch details
 
-The sketch can be found under link:sketches/esp8266-web-relay-advanced[web-relay-advanced] folder.
+The sketch can be found under link:sketches/esp8266-05-web-relay-advanced[web-relay-advanced] folder.
 
 This is a basic sketch from SPIFFS example, with addition of relay web services.
 
