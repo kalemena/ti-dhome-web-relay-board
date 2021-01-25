@@ -110,12 +110,14 @@ void setup() {
         USE_SERIAL.print(".");
     }
 
-    // handle index
+    USE_SERIAL.println("Controller initializing");
     server.on("/", []() {
         // send index.html
         server.send(200, "text/html", "<html><head><script>var connection = new WebSocket('ws://'+location.hostname+':80/ws', ['arduino']);connection.onopen = function () {  connection.send('Connect ' + new Date()); }; connection.onerror = function (error) {    console.log('WebSocket Error ', error);};connection.onmessage = function (e) {  console.log('Server: ', e.data);};function sendRGB() {  var r = parseInt(document.getElementById('r').value).toString(16);  var g = parseInt(document.getElementById('g').value).toString(16);  var b = parseInt(document.getElementById('b').value).toString(16);  if(r.length < 2) { r = '0' + r; }   if(g.length < 2) { g = '0' + g; }   if(b.length < 2) { b = '0' + b; }   var rgb = '#'+r+g+b;    console.log('RGB: ' + rgb); connection.send(rgb); }</script></head><body>LED Control:<br/><br/>R: <input id=\"r\" type=\"range\" min=\"0\" max=\"255\" step=\"1\" oninput=\"sendRGB();\" /><br/>G: <input id=\"g\" type=\"range\" min=\"0\" max=\"255\" step=\"1\" oninput=\"sendRGB();\" /><br/>B: <input id=\"b\" type=\"range\" min=\"0\" max=\"255\" step=\"1\" oninput=\"sendRGB();\" /><br/></body></html>");
     });
+    server.on("/status", HTTP_GET, controllerStatus);
 
+    // web socket
     server.addHook(webSocket.hookForWebserver("/ws", webSocketEvent));
 
     server.begin();
@@ -136,6 +138,36 @@ void setup() {
 
     // Add service to MDNS
     MDNS.addService("http", "tcp", 80);
+}
+
+// ===== CONTROLER
+
+void controllerStatus() {  
+  String json = renderStatus("status");
+  server.send(200, "application/json", json);
+  json = String();
+}
+
+// ===== TASK
+
+String renderStatus(String message) {
+  String json = "{\n";
+  json += " \"system\": {\n";
+  json += "   \"heap\": " + String(ESP.getFreeHeap()) + ",\n";
+  json += "   \"boot-version\": " + String(ESP.getBootVersion()) + ",\n";
+  json += "   \"cpu-frequency\": " + String(system_get_cpu_freq()) + ",\n";
+  json += "   \"sdk\": \"" + String(system_get_sdk_version()) + "\",\n";
+  json += "   \"chip-id\": " + String(system_get_chip_id()) + ",\n";
+  json += "   \"flash-id\": " + String(spi_flash_get_id()) + ",\n";
+  json += "   \"flash-size\": " + String(ESP.getFlashChipRealSize()) + ",\n";
+  json += "   \"vcc\": " + String(ESP.getVcc()) + ",\n";
+  json += "   \"gpio\": " + String((uint32_t)(((GPI | GPO) & 0xFFFF) | ((GP16I & 0x01) << 16))) + "\n";
+  json += "  },\n";
+  if(message != "") {
+    json += " \"message\": \"" + message + "\"\n";
+  }
+  json += "}\n";
+  return json;
 }
 
 void loop() {
