@@ -7,4 +7,4 @@ int dataPin = 13;
 // Relay Map
 
 #define ARRAYSIZE 16
-String sensors[ARRAYSIZE] = { "Ch. Jeux", "Bureau", "Ch. Léna", "Ch. Damien", "SdB Haut", "Mezanine", "Ch. Bas", "SdB Bas", "NA", "NA", "NA", "NA", "NA", "NA", "Salon", "Hall" };
+String sensors[ARRAYSIZE] = { "Ch. Jeux", "Bureau", "Ch. Lena", "Ch. Damien", "SdB Haut", "Mezanine", "Ch. Bas", "SdB Bas", "NA", "NA", "NA", "NA", "NA", "NA", "Salon", "Hall" };

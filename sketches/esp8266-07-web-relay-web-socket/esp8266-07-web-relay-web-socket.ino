@@ -135,7 +135,7 @@ void setup() {
     });
     
     // web socket
-    server.addHook(webSocket.hookForWebserver("/ws", webSocketEvent));
+    server.addHook(webSocket.hookForWebserver("/ws", websocket_event));
 
     server.begin();
     
@@ -161,7 +161,7 @@ void setup() {
     delay(10);
     
     // reset to 0
-    operation_switch_relay(0);
+    operation_switch_relay_internal(0);
 }
 
 void loop() {
@@ -202,12 +202,20 @@ String getContentType(String filename){
   return "text/plain";
 }
 
+// Utility convert String to Char
+char* StringToChar(String s) {
+  unsigned int bufSize = s.length() + 1; //String length + null terminator
+  char* ret = new char[bufSize];
+  s.toCharArray(ret, bufSize);
+  return ret;
+}
+
 // ===== OPERATIONS
 
 /**
 Value is anything between 0 to 65535 representing 16 bits of data I/Os
 */
-void operation_switch_relay(int value) 
+void operation_switch_relay_internal(int value) 
 {
    // take the latchPin low so 
    // the LEDs don't change while you're sending in bits:
@@ -220,6 +228,24 @@ void operation_switch_relay(int value)
    
    //take the latch pin high so the LEDs will light up:
    digitalWrite(latchPin, HIGH);
+}
+
+void operation_switch_relay(int relayNb, int relayStateWanted) {
+  // int relayStateWanted = -1;
+  int thisRelayState = (relayState >> relayNb) & 1;
+  
+  Serial.println("Relay " + String(relayNb) + "(" + relayStateWanted + ") => " + String(thisRelayState));
+
+  // switch on
+  if(thisRelayState == 0 && relayStateWanted != 0)
+    relayState |= (1 << relayNb);
+
+  // switch off
+  if(thisRelayState == 1 && relayStateWanted != 1)
+    relayState &= ~(1 << relayNb);
+  
+  Serial.println("Relays = " + String(relayState));  
+  operation_switch_relay_internal(relayState);
 }
 
 // ===== CONTROLLER - FILE
@@ -408,7 +434,7 @@ void controller_test() {
   for (int switchId = 15; switchId >= 0; switchId--) {
     relayState = 0;
     relayState |= (1 << switchId);    
-    operation_switch_relay(relayState); delay(pause);
+    operation_switch_relay_internal(relayState); delay(pause);
   }
 }
 
@@ -450,7 +476,7 @@ void controller_switch_relay() {
     relayState &= ~(1 << relayNb);
   
   Serial.println("Relays = " + String(relayState));  
-  operation_switch_relay(relayState);
+  operation_switch_relay_internal(relayState);
    
   // reload page
   controller_root();
@@ -473,14 +499,21 @@ void controller_gpio_switch() {
     relayState &= ~(1 << relayNb);
   
   Serial.println("Relays = " + String(relayState));  
-  operation_switch_relay(relayState);
+  operation_switch_relay_internal(relayState);
    
   server.send(200, "text/plain", "");  
 }
 
 // ===== WEB-SOCKET
 
-void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
+void websocket_broadcast(String message) {
+  // send to all clients this update
+  char* msgChar = StringToChar(message);
+  webSocket.broadcastTXT(msgChar, strlen(msgChar));
+  Serial.printf("Broadcast message [%s]\r\n", msgChar);
+}
+
+void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
 
     switch(type) {
         case WStype_DISCONNECTED:
@@ -495,26 +528,31 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
 				        webSocket.sendTXT(num, "Connected");
             }
             break;
+            
         case WStype_TEXT:
-            Serial.printf("[%u] get Text: %s\n", num, payload);
+            {
+                Serial.printf("[%u] get Text: %s\n", num, payload);
 
-//            if(payload[0] == '#') {
-//                // we get RGB data
-//
-//                // decode rgb data
-//                uint32_t rgb = (uint32_t) strtol((const char *) &payload[1], NULL, 16);
-//
-//                analogWrite(LED_RED, ((rgb >> 16) & 0xFF));
-//                analogWrite(LED_GREEN, ((rgb >> 8) & 0xFF));
-//                analogWrite(LED_BLUE, ((rgb >> 0) & 0xFF));
-//            }
-
+                String payloadStr = String((const char *)payload);
+                if(payloadStr.startsWith("set/")) {
+                  int idxEqual = payloadStr.indexOf("=");
+                  if(idxEqual > 0 && idxEqual < payloadStr.length()) {
+                    String switchId = payloadStr.substring(4, idxEqual);
+                    String switchValue = payloadStr.substring(idxEqual+1);
+                    operation_switch_relay(switchId.toInt(),switchValue.toInt());
+                  }
+                } else {
+                  Serial.println("Unknown command");
+                }
+            
             // send message to client
             // webSocket.sendTXT(num, "message here");
 
             // send data to all connected clients
             // webSocket.broadcastTXT("message here");
-            break;
+          }
+          break;
+            
         case WStype_BIN:
             Serial.printf("[%u] get binary length: %u\n", num, length);
             hexdump(payload, length);
