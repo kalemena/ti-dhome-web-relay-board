@@ -430,15 +430,23 @@ void controller_switch_relay() {
     controller_root();
     return;
   }
+
+  int relayWantedState = -1;
+  if(server.hasArg("state")) {
+    relayWantedState = server.arg("state").toInt();
+  }
     
   int relayNb = server.arg("id").toInt();
   int thisRelayState = (relayState >> relayNb) & 1;
   
-  Serial.println("Relay " + String(relayNb) + "=" + String(thisRelayState));
-  
-  if(thisRelayState == 0)
+  Serial.println("Relay " + String(relayNb) + "(" + relayWantedState + ") => " + String(thisRelayState));
+
+  // switch on
+  if(thisRelayState == 0 && relayWantedState != 0)
     relayState |= (1 << relayNb);
-  else
+
+  // switch off
+  if(thisRelayState == 1 && relayWantedState != 1)
     relayState &= ~(1 << relayNb);
   
   Serial.println("Relays = " + String(relayState));  
