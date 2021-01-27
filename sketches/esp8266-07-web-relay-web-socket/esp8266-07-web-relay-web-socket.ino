@@ -230,7 +230,7 @@ void operation_switch_relay_internal(int value)
    digitalWrite(latchPin, HIGH);
 }
 
-void operation_switch_relay(int relayNb, int relayStateWanted) {
+int operation_switch_relay(int relayNb, int relayStateWanted) {
   // int relayStateWanted = -1;
   int thisRelayState = (relayState >> relayNb) & 1;
   
@@ -246,6 +246,8 @@ void operation_switch_relay(int relayNb, int relayStateWanted) {
   
   Serial.println("Relays = " + String(relayState));  
   operation_switch_relay_internal(relayState);
+
+  return !thisRelayState;
 }
 
 // ===== CONTROLLER - FILE
@@ -393,7 +395,7 @@ String render_status(String message) {
   if(message != "") {
     json += ",\n \"message\": \"" + message + "\"\n";
   } else {
-    json += "\n"
+    json += "\n";
   }
   json += "}\n";
   return json;
@@ -516,7 +518,10 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                 Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
 
 				        // send message to client
-				        webSocket.sendTXT(num, "Connected");
+				        // webSocket.sendTXT(num, "Connected");
+                String json = render_status("");
+                webSocket.sendTXT(num, json);
+                json = String();
             }
             break;
             
@@ -525,8 +530,8 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                 Serial.printf("[%u] get Text: %s\n", num, payload);
 
                 String payloadStr = String((const char *)payload);
-                if(payloadStr.startsWith("relays")) {
-                  String json = render_relays_status_body();
+                if(payloadStr.startsWith("/status")) {
+                  String json = render_status("");
                   webSocket.sendTXT(num, json);
                   json = String();
                   
@@ -534,9 +539,11 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                 
                   int idxEqual = payloadStr.indexOf("=");
                   if(idxEqual > 0 && idxEqual < payloadStr.length()) {
-                    String switchId = payloadStr.substring(4, idxEqual);
+                    String switchId = payloadStr.substring(11, idxEqual);
                     String switchValue = payloadStr.substring(idxEqual+1);
-                    operation_switch_relay(switchId.toInt(),switchValue.toInt());
+                    int relayState = operation_switch_relay(switchId.toInt(),switchValue.toInt());
+                    
+                    webSocket.broadcastTXT(String("relays/status?") + switchId + String("=") + String(relayState));
                   }
                 } else {
                   Serial.println("Unknown command");
