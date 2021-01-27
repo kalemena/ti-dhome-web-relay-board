@@ -389,16 +389,25 @@ String render_status(String message) {
   json += "   \"vcc\": " + String(ESP.getVcc()) + ",\n";
   json += "   \"gpio\": " + String((uint32_t)(((GPI | GPO) & 0xFFFF) | ((GP16I & 0x01) << 16))) + "\n";
   json += "  },\n";
+  json += render_relays_status();  
   if(message != "") {
-    json += " \"message\": \"" + message + "\"\n";
+    json += ",\n \"message\": \"" + message + "\"\n";
+  } else {
+    json += "\n"
   }
   json += "}\n";
   return json;
 }
 
-String render_relays_status() {
+String render_relays_status_body() {
   String json = "{\n";
-  json += " \"relays\": [\n";
+  json += render_relays_status() + "\n";
+  json += "}\n";
+  return json;
+}
+
+String render_relays_status() {
+  String json = " \"relays\": [\n";
   for (int switchId = 0; switchId < 16; switchId++) {
     int thisRelayState = (relayState >> switchId) & 1;
     json += "    { \"description\": \"" + String(sensors[switchId]) + "\", \"switch\": " + String(switchId) + ", \"value\":" + String(thisRelayState) + " }";
@@ -406,8 +415,7 @@ String render_relays_status() {
       json += ",";
     json += "\n";
   }
-  json += "  ]\n";
-  json += "}\n";
+  json += "  ]";
   return json;
 }
 
@@ -429,7 +437,7 @@ void controller_test() {
 }
 
 void controller_gpio_status() {  
-  String json = render_relays_status();
+  String json = render_relays_status_body();
   server.send(200, "application/json", json);
   json = String();
 }
@@ -518,7 +526,7 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
 
                 String payloadStr = String((const char *)payload);
                 if(payloadStr.startsWith("relays")) {
-                  String json = render_relays_status();
+                  String json = render_relays_status_body();
                   webSocket.sendTXT(num, json);
                   json = String();
                   
