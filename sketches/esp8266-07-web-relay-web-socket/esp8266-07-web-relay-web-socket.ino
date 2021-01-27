@@ -353,7 +353,7 @@ void controller_root() {
        <title>Web relays</title>\
        <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">\
        <script> \
-      </script> \
+       </script> \
       </head>\
       <body> \
       <table>\
@@ -376,7 +376,7 @@ void controller_root() {
   delay(100);
 }
 
-String renderStatus(String message) {
+String render_status(String message) {
   String json = "{\n";
   json += " \"system\": {\n";
   json += "   \"heap\": " + String(ESP.getFreeHeap()) + ",\n";
@@ -396,8 +396,23 @@ String renderStatus(String message) {
   return json;
 }
 
+String render_relays_status() {
+  String json = "{\n";
+  json += " \"relays\": [\n";
+  for (int switchId = 0; switchId < 16; switchId++) {
+    int thisRelayState = (relayState >> switchId) & 1;
+    json += "    { \"description\": \"" + String(sensors[switchId]) + "\", \"switch\": " + String(switchId) + ", \"value\":" + String(thisRelayState) + " }";
+    if(switchId < 15)
+      json += ",";
+    json += "\n";
+  }
+  json += "  ]\n";
+  json += "}\n";
+  return json;
+}
+
 void controller_status() {  
-  String json = renderStatus("status");
+  String json = render_status("status");
   server.send(200, "application/json", json);
   json = String();
 }
@@ -414,14 +429,7 @@ void controller_test() {
 }
 
 void controller_gpio_status() {  
-  String json = "[\n";
-  for (int switchId = 0; switchId < 16; switchId++) {
-    boolean switchState = ((relayState >> switchId) & 1);
-    if(switchId != 0)
-      json += ",\n";
-    json += " { \"description\": \"" + String(sensors[switchId]) + "\", \"switch\":" + String(switchId) + ", \"value\":" + String(switchState) + " }";    
-  }
-  json += "\n]";  
+  String json = render_relays_status();
   server.send(200, "application/json", json);
   json = String();
 }
@@ -509,7 +517,13 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                 Serial.printf("[%u] get Text: %s\n", num, payload);
 
                 String payloadStr = String((const char *)payload);
-                if(payloadStr.startsWith("set/")) {
+                if(payloadStr.startsWith("relays")) {
+                  String json = render_relays_status();
+                  webSocket.sendTXT(num, json);
+                  json = String();
+                  
+                } else if(payloadStr.startsWith("relays/set?")) {
+                
                   int idxEqual = payloadStr.indexOf("=");
                   if(idxEqual > 0 && idxEqual < payloadStr.length()) {
                     String switchId = payloadStr.substring(4, idxEqual);
