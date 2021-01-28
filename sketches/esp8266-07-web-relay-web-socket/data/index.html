@@ -19,10 +19,15 @@
       connection.onmessage = function (e) {
         console.log('Server: \n', e.data);
         
-        var obj = JSON.parse(e.data);
-        for(relay in obj.relays) {
-          tableRelaysAdd(obj.relays[relay]);
+        if(e.data.startsWith("{")) {
+          var obj = JSON.parse(e.data);
+          for(relay in obj.relays) {
+            tableRelaysAdd(obj.relays[relay]);
+          }
+        } else if(e.data.startsWith("relays/status?")) {
+          // update button
         }
+        
       };
 
       function tableRelaysAdd(relay) {

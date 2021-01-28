@@ -118,8 +118,7 @@ void setup() {
     
     server.on("/", []() {
         // send index.html
-        // server.send(200, "text/html", "<html><head><script>var connection = new WebSocket('ws://'+location.hostname+':80/ws', ['arduino']);connection.onopen = function () {  connection.send('Connect ' + new Date()); }; connection.onerror = function (error) {    console.log('WebSocket Error ', error);};connection.onmessage = function (e) {  console.log('Server: ', e.data);};function sendRGB() {  var r = parseInt(document.getElementById('r').value).toString(16);  var g = parseInt(document.getElementById('g').value).toString(16);  var b = parseInt(document.getElementById('b').value).toString(16);  if(r.length < 2) { r = '0' + r; }   if(g.length < 2) { g = '0' + g; }   if(b.length < 2) { b = '0' + b; }   var rgb = '#'+r+g+b;    console.log('RGB: ' + rgb); connection.send(rgb); }</script></head><body>LED Control:<br/><br/>R: <input id=\"r\" type=\"range\" min=\"0\" max=\"255\" step=\"1\" oninput=\"sendRGB();\" /><br/>G: <input id=\"g\" type=\"range\" min=\"0\" max=\"255\" step=\"1\" oninput=\"sendRGB();\" /><br/>B: <input id=\"b\" type=\"range\" min=\"0\" max=\"255\" step=\"1\" oninput=\"sendRGB();\" /><br/></body></html>");
-        controller_root();
+        server.send(200, "text/html", "<html><head><meta http-equiv=\"refresh\" content=\"0; URL=/index.html\" /></head></html>");
     });
     server.on("/status", HTTP_GET, controller_status);
     server.on("/test", HTTP_GET, controller_test);
@@ -346,38 +345,6 @@ void controller_file_list() {
 
 // ===== CONTROLER - RELAYS
 
-void controller_root() {  
-  String result = 
-    "<!DOCTYPE HTML> \
-     <html>\
-      <head>\
-       <meta http-equiv=\"Content-type\" content=\"text/html\"; charset=utf-8\">\
-       <title>Web relays</title>\
-       <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">\
-       <script> \
-       </script> \
-      </head>\
-      <body> \
-      <table>\
-       <tr>\
-        <th>Description</th>\
-        <th>Status</th>\
-       </tr>";
-  for (int switchId = 0; switchId < 16; switchId++) {
-    boolean switchState = ((relayState >> switchId) & 1);
-    result += "<tr>";
-    result += "<td>" + String(sensors[switchId]) + " (" + String(switchId) + ")" + "</td>";
-    result += "<td><a href=\"/switch?id=" + String(switchId) + "\"><button>" + String(switchState == 0 ? "<img src=\"/off.svg\"" : "<img src=\"/on.svg\"") + " height=\"40\" width=\"32\"/></button></a></td>";
-    result += "</tr>";
-  }
-  result += "</table>";
-  result += "</body>";
-  result += "</html>";
-    
-  server.send(200, "text/html", result);  
-  delay(100);
-}
-
 String render_status(String message) {
   String json = "{\n";
   json += " \"system\": {\n";
@@ -446,7 +413,6 @@ void controller_gpio_status() {
 
 void controller_switch_relay() {
   if(!server.hasArg("id")) {
-    controller_root();
     return;
   }
 
@@ -470,9 +436,6 @@ void controller_switch_relay() {
   
   Serial.println("Relays = " + String(relayState));  
   operation_switch_relay_internal(relayState);
-   
-  // reload page
-  controller_root();
 }
 
 void controller_gpio_switch() {
