@@ -23,8 +23,8 @@
         var eventName = eventData[0];
         var eventBody = JSON.parse(eventData[1]);
 
-        console.log('eventName: ', eventName);
-        console.log('eventBody: ', eventBody);
+        // console.log('eventName: ', eventName);
+        // console.log('eventBody: ', eventBody);
         
         if(eventName === "status") {
           for(relay in eventBody.relays) {
@@ -34,22 +34,25 @@
         
         if(eventName.startsWith("relay")) {
           // update button
-          buttonImage = (eventBody.value == 0 ? "on.svg" : "off.svg")
-          console.log('buttonImage: \n', buttonImage);
-          $("#switch" + eventBody.id).innerHTML = buttonImage;
+          buttonImageFile = (eventBody.value == 0 ? "off.svg" : "on.svg")
+          buttonImage = "<img src=\"/" + buttonImageFile +"\" height=\"40\" width=\"32\"/>"
+          
+          // console.log('buttonImage: \n', buttonImage);
+          // console.log('id: \n', eventBody.id);
+          document.getElementById("switch" + eventBody.id).innerHTML = buttonImage;
         }
         
       };
 
       function tableRelaysAdd(relay) {
-        buttonImage = (relay.value == 0 ? "on.svg" : "off.svg")
+        buttonImageFile = (relay.value == 0 ? "off.svg" : "on.svg")
+        buttonImage = "<img src=\"/" + buttonImageFile +"\" height=\"40\" width=\"32\"/>"
 
         $("#tableRelays tbody").append("<tr>" +
             "<td>" + relay.description +"</td>" +
             "<td>" + 
               "<button id=\"switch" + relay.id + "\" onclick=\"relaySwitch(" + relay.id + ")\">" + 
                 buttonImage +
-                // "<img src=\"/" + buttonImage +"\" height=\"40\" width=\"32\"/>" +
               "</button>" +
             "</td>" +
             "</tr>");
@@ -59,6 +62,7 @@
         console.log('Relay: ' + id);
         connection.send('relays/set?' + id + "=-1");
       }
+
     </script>
   </head>
   <body>
