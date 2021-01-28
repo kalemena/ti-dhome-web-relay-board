@@ -379,7 +379,7 @@ String render_relays_status() {
   String json = " \"relays\": [\n";
   for (int switchId = 0; switchId < 16; switchId++) {
     int thisRelayState = (relayState >> switchId) & 1;
-    json += "    { \"description\": \"" + String(sensors[switchId]) + "\", \"switch\": " + String(switchId) + ", \"value\":" + String(thisRelayState) + " }";
+    json += "    { \"description\": \"" + String(sensors[switchId]) + "\", \"id\": " + String(switchId) + ", \"value\":" + String(thisRelayState) + " }";
     if(switchId < 15)
       json += ",";
     json += "\n";
@@ -483,7 +483,7 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
 				        // send message to client
 				        // webSocket.sendTXT(num, "Connected");
                 String json = render_status("");
-                webSocket.sendTXT(num, json);
+                webSocket.sendTXT(num, String("status~") + json);
                 json = String();
             }
             break;
@@ -495,7 +495,7 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                 String payloadStr = String((const char *)payload);
                 if(payloadStr.startsWith("/status")) {
                   String json = render_status("");
-                  webSocket.sendTXT(num, json);
+                  webSocket.sendTXT(num, String("status~") + json);
                   json = String();
                   
                 } else if(payloadStr.startsWith("relays/set?")) {
@@ -506,19 +506,13 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                     String switchValue = payloadStr.substring(idxEqual+1);
                     int relayState = operation_switch_relay(switchId.toInt(),switchValue.toInt());
                     
-                    webSocket.broadcastTXT(String("relays/status?") + switchId + String("=") + String(relayState));
+                    webSocket.broadcastTXT(String("relay~{ \"id\": ") + switchId + String(", \"value\":") + String(relayState) + String(" }"));
                   }
                 } else {
                   Serial.println("Unknown command");
                 }
-            
-            // send message to client
-            // webSocket.sendTXT(num, "message here");
-
-            // send data to all connected clients
-            // webSocket.broadcastTXT("message here");
-          }
-          break;
+            }
+            break;
             
         case WStype_BIN:
             Serial.printf("[%u] get binary length: %u\n", num, length);

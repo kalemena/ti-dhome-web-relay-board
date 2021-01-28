@@ -19,13 +19,24 @@
       connection.onmessage = function (e) {
         console.log('Server: \n', e.data);
         
-        if(e.data.startsWith("{")) {
-          var obj = JSON.parse(e.data);
-          for(relay in obj.relays) {
-            tableRelaysAdd(obj.relays[relay]);
-          }
-        } else if(e.data.startsWith("relays/status?")) {
+        const eventData = e.data.split('~');
+        var eventName = eventData[0];
+        var eventBody = JSON.parse(eventData[1]);
+
+        console.log('eventName: ', eventName);
+        console.log('eventBody: ', eventBody);
+        
+        if(eventName === "status") {
+          for(relay in eventBody.relays) {
+            tableRelaysAdd(eventBody.relays[relay]);
+          }          
+        } 
+        
+        if(eventName.startsWith("relay")) {
           // update button
+          buttonImage = (eventBody.value == 0 ? "on.svg" : "off.svg")
+          console.log('buttonImage: \n', buttonImage);
+          $("#switch" + eventBody.id).innerHTML = buttonImage;
         }
         
       };
@@ -35,8 +46,11 @@
 
         $("#tableRelays tbody").append("<tr>" +
             "<td>" + relay.description +"</td>" +
-            "<td><button id=\"switch" + relay.switch + "\" onclick=\"relaySwitch(" + relay.switch + ")\">" + 
-            "<img src=\"/" + buttonImage +"\" height=\"40\" width=\"32\"/></button>" +
+            "<td>" + 
+              "<button id=\"switch" + relay.id + "\" onclick=\"relaySwitch(" + relay.id + ")\">" + 
+                buttonImage +
+                // "<img src=\"/" + buttonImage +"\" height=\"40\" width=\"32\"/>" +
+              "</button>" +
             "</td>" +
             "</tr>");
       }
