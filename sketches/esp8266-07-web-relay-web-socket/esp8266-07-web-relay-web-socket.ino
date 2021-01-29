@@ -1,21 +1,7 @@
 /* 
   ti-dhome - esp8266 base web relay board
   Copyright (c) 2021 Kalemena. All rights reserved.
-   
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
 
-  Usage:
-  upload the contents of the data folder with MkSPIFFS Tool ("ESP8266 Sketch Data Upload" in Tools menu in Arduino IDE)
-  or you can upload the contents of a folder if you CD in that folder and run the following command:
-  for file in `ls -A1`; do curl -F "file=@$PWD/$file" esp8266fs.local/edit; done
-  
   access the sample web page at http://iotrelays.local
   edit the page by going to http://iotrelays.local/edit
 */
@@ -27,7 +13,7 @@
 #include <WebSockets4WebServer.h>
 #include <Hash.h>
 #include <ESP8266mDNS.h>
-#include <FS.h>
+#include <LittleFS.h>
 #include <ArduinoJson.h>
 
 ESP8266WiFiMulti WiFiMulti;
@@ -68,19 +54,39 @@ void setup() {
     }
 
     // Setup file system
-    SPIFFS.begin();
-    {
-      Serial.println("SPIFFS contents:");
-  
-      Dir dir = SPIFFS.openDir("/");
-      while (dir.next()) {
-        String fileName = dir.fileName();
-        size_t fileSize = dir.fileSize();
-        Serial.printf("FS File: %s, size: %s\n", fileName.c_str(), String(fileSize).c_str());
-      }
-      Serial.printf("\n");
+    if (LittleFS.begin()) {
+      Serial.println(F("LittleFS system mounted with success"));
+    } else {
+      Serial.println(F("An Error has occurred while mounting LittleFS"));
     }
-
+    
+    // Get all information about LittleFS
+    FSInfo fsInfo;
+    LittleFS.info(fsInfo);
+  
+    Serial.println("------------------------------");
+    Serial.println("File system info");
+    Serial.println("------------------------------");
+    Serial.printf("Total space:      %d byte\n", fsInfo.totalBytes);
+    Serial.printf("Total space used: %d byte\n", fsInfo.usedBytes);
+    Serial.printf("Block size:       %d byte\n", fsInfo.blockSize);
+    Serial.printf("Page size:        %d byte\n", fsInfo.totalBytes);
+    Serial.printf("Max open files:   %d\n", fsInfo.maxOpenFiles);
+    Serial.printf("Max path lenght:  %d\n", fsInfo.maxPathLength);
+  
+    Serial.println("------------------------------");
+    Serial.println("List files");
+    Serial.println("------------------------------");
+    Dir dirit = LittleFS.openDir("/");
+    while (dirit.next()) {
+      if (dirit.fileSize()) {
+        String fileName = dirit.fileName();
+        size_t fileSize = dirit.fileSize();
+        Serial.printf(" - %s - %s byte\n", fileName.c_str(), String(fileSize).c_str());
+      }
+    }
+    Serial.printf("\n");
+    
     delay(10);
 
     // 74HC595
@@ -112,9 +118,9 @@ void setup() {
     });
 
     // static files
-    server.serveStatic("/favicon.ico", SPIFFS, "/favicon.ico");
-    server.serveStatic("/on.svg", SPIFFS, "/on.svg");
-    server.serveStatic("/off.svg", SPIFFS, "/off.svg");
+    server.serveStatic("/favicon.ico", LittleFS, "/favicon.ico");
+    server.serveStatic("/on.svg", LittleFS, "/on.svg");
+    server.serveStatic("/off.svg", LittleFS, "/off.svg");
     
     server.on("/", []() {
         // send index.html
@@ -127,7 +133,7 @@ void setup() {
     server.on("/gpios/switch", HTTP_GET, controller_gpio_switch);
 
     //called when the url is not defined here
-    //use it to load content from SPIFFS
+    //use it to load content from LittleFS
     server.onNotFound([](){
       if(!controller_file_read(server.uri()))
         server.send(404, "text/plain", "FileNotFound");
@@ -256,10 +262,10 @@ bool controller_file_read(String path){
   if(path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);
   String pathWithGz = path + ".gz";
-  if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)){
-    if(SPIFFS.exists(pathWithGz))
+  if(LittleFS.exists(pathWithGz) || LittleFS.exists(path)){
+    if(LittleFS.exists(pathWithGz))
       path += ".gz";
-    File file = SPIFFS.open(path, "r");
+    File file = LittleFS.open(path, "r");
     size_t sent = server.streamFile(file, contentType);
     file.close();
     return true;
@@ -274,7 +280,7 @@ void controller_file_upload(){
     String filename = upload.filename;
     if(!filename.startsWith("/")) filename = "/"+filename;
     Serial.print("handleFileUpload Name: "); Serial.println(filename);
-    fsUploadFile = SPIFFS.open(filename, "w");
+    fsUploadFile = LittleFS.open(filename, "w");
     filename = String();
   } else if(upload.status == UPLOAD_FILE_WRITE){
     //Serial.print("handleFileUpload Data: "); Serial.println(upload.currentSize);
@@ -293,9 +299,9 @@ void controller_file_delete(){
   Serial.println("handleFileDelete: " + path);
   if(path == "/")
     return server.send(500, "text/plain", "BAD PATH");
-  if(!SPIFFS.exists(path))
+  if(!LittleFS.exists(path))
     return server.send(404, "text/plain", "FileNotFound");
-  SPIFFS.remove(path);
+  LittleFS.remove(path);
   server.send(200, "text/plain", "");
   path = String();
 }
@@ -307,9 +313,9 @@ void controller_file_create(){
   Serial.println("handleFileCreate: " + path);
   if(path == "/")
     return server.send(500, "text/plain", "BAD PATH");
-  if(SPIFFS.exists(path))
+  if(LittleFS.exists(path))
     return server.send(500, "text/plain", "FILE EXISTS");
-  File file = SPIFFS.open(path, "w");
+  File file = LittleFS.open(path, "w");
   if(file)
     file.close();
   else
@@ -323,7 +329,7 @@ void controller_file_list() {
   
   String path = server.arg("dir");
   Serial.println("handleFileList: " + path);
-  Dir dir = SPIFFS.openDir(path);
+  Dir dir = LittleFS.openDir(path);
   path = String();
 
   String output = "[";
