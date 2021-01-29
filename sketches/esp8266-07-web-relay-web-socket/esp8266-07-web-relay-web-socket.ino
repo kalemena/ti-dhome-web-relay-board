@@ -118,9 +118,9 @@ void setup() {
     });
 
     // static files
-    server.serveStatic("/favicon.ico", LittleFS, "/favicon.ico");
-    server.serveStatic("/on.svg", LittleFS, "/on.svg");
-    server.serveStatic("/off.svg", LittleFS, "/off.svg");
+    //server.serveStatic("/favicon.ico", LittleFS, "/favicon.ico");
+    //server.serveStatic("/on.svg", LittleFS, "/on.svg");
+    //server.serveStatic("/off.svg", LittleFS, "/off.svg");
     
     server.on("/", []() {
         // send index.html
@@ -238,21 +238,38 @@ void operation_switch_relay_internal(int value)
 int operation_switch_relay(int relayNb, int relayStateWanted) {
   // int relayStateWanted = -1;
   int thisRelayState = (relayState >> relayNb) & 1;
+  int relayStateResponse = thisRelayState;
   
   Serial.println("Relay " + String(relayNb) + "(" + relayStateWanted + ") => " + String(thisRelayState));
 
   // switch on
-  if(thisRelayState == 0 && relayStateWanted != 0)
+  if(thisRelayState == 0 && relayStateWanted != 0) {
     relayState |= (1 << relayNb);
+    relayStateResponse = 1;
+  }
 
   // switch off
-  if(thisRelayState == 1 && relayStateWanted != 1)
+  if(thisRelayState == 1 && relayStateWanted != 1) {
     relayState &= ~(1 << relayNb);
+    relayStateResponse = 0;
+  }
   
   Serial.println("Relays = " + String(relayState));  
   operation_switch_relay_internal(relayState);
 
-  return !thisRelayState;
+  webSocket.broadcastTXT(String("relay~{ \"id\": ") + relayNb + String(", \"value\":") + String(relayStateResponse) + String(" }"));
+
+  return relayStateResponse;
+}
+
+void operation_test() {
+  int pause = 500;  
+  for (int switchId = 15; switchId >= 0; switchId--) {
+    operation_switch_relay(switchId, -1); 
+    delay(pause);
+    operation_switch_relay(switchId, -1);
+    delay(pause);
+  }
 }
 
 // ===== CONTROLLER - FILE
@@ -402,13 +419,7 @@ void controller_status() {
 
 void controller_test() {
   server.send(200, "text/plain", "");
-  
-  int pause = 500;  
-  for (int switchId = 15; switchId >= 0; switchId--) {
-    relayState = 0;
-    relayState |= (1 << switchId);    
-    operation_switch_relay_internal(relayState); delay(pause);
-  }
+  operation_test();
 }
 
 void controller_gpio_status() {  
@@ -511,9 +522,10 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                     String switchId = payloadStr.substring(11, idxEqual);
                     String switchValue = payloadStr.substring(idxEqual+1);
                     int relayState = operation_switch_relay(switchId.toInt(),switchValue.toInt());
-                    
-                    webSocket.broadcastTXT(String("relay~{ \"id\": ") + switchId + String(", \"value\":") + String(relayState) + String(" }"));
                   }
+                } else if(payloadStr.startsWith("relays/test")) {
+                  operation_test();
+                  
                 } else {
                   Serial.println("Unknown command");
                 }

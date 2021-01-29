@@ -63,6 +63,11 @@
         connection.send('relays/set?' + id + "=-1");
       }
 
+      function relayTest() {
+        console.log('Relay Test:');
+        connection.send('relays/test');
+      }
+
     </script>
   </head>
   <body>
@@ -76,5 +81,7 @@
       <tbody>
       </tbody> 
     </table>
+    </br>
+    <button id="test" onclick="relayTest()">Relay Test</button>
   </body>
 </html>
