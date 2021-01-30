@@ -431,9 +431,12 @@ void controller_relay_set() {
   }
     
   int relayNb = server.arg("id").toInt();
-  operation_relay_set(relayNb, relayWantedState);
+  int relayState = operation_relay_set(relayNb, relayWantedState);
 
-  server.send(200, "text/plain", "");
+  String json = "{\n";
+  json += "  \"id\": " + String(relayNb) + ", \"value\": " + String(relayState) + "\n";
+  json += "}";
+  server.send(200, "text/plain", json);
 }
 
 // ===== WEB-SOCKET

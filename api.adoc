@@ -1,4 +1,5 @@
 :toc:
+:hardbreaks:
 
 == API
 
@@ -14,40 +15,39 @@ image:res/web-interface.png[Web Relays UI]
 
     $ curl -X GET http://192.168.1.56/status
     {
-    "heap":35072,
-    "relays":5,
-    "gpio":49157
+    "system": {
+    "heap": 42896,
+    "boot-version": 31,
+    "cpu-frequency": 80,
+    "sdk": "2.2.2-dev(38a443e)",
+    "chip-id": 286753,
+    "flash-id": 1458415,
+    "flash-size": 4194304,
+    "vcc": 65535,
+    "gpio": 114693
+    },
+    "relays": [
+        { "description": "Ch. Jeux", "id": 0, "value":0 },
+        ...
+        { "description": "Hall", "id": 15, "value":0 }
+    ],
+    "message": "status"
     }
 
-=== GET /gpios/switch?id=x
+=== GET /relays/set?id=X&value=Y
 
 Specify id between 0 and 15:
 
-    $ curl -v http://192.168.1.56/gpios/switch?id=1 
-
-=== GET /gpios/status
-
-Get all values of relays:
-
-    $ curl -v http://192.168.1.56/gpios/status | jq .
-    [
+    $ curl -v http://192.168.1.56/relays/set?id=1&value=-1
     {
-        "description": "Ch. Jeux",
-        "switch": 0,
-        "value": 0
-    },
-    {
-        "description": "Bureau",
-        "switch": 1,
-        "value": 0
-    },
-    {
-        "description": "Ch. Léna",
-        "switch": 2,
-        "value": 0
-    },
-    {
-        "description": "Ch. Damien",
-        "switch": 3,
-        ...
+        "id": 1, "value":0
+    }
 
+TIP: value is 0, 1 or -1 to switch blindly 
+
+=== GET /test
+
+Triggers a cycle on/off on each of the relays, with 500ms in between on/off.
+Useful to test the websocket reaction of Web UI.
+
+    $ curl -v http://192.168.1.56/test
