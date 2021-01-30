@@ -1,48 +1,61 @@
 <!DOCTYPE HTML>
 <html>
   <head>
-      <meta http-equiv="Content-type" content="text/html"; charset="utf-8">
-      <title>Web relays</title>
-      <link rel="stylesheet" type="text/css" href="style.css">
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-      <script>
-      var connection = new WebSocket('ws://' + location.hostname + ':80/ws', ['arduino']);
-      // var connection = new WebSocket('ws://192.168.1.40:80/ws', ['arduino']);
-      connection.onopen = function () {
-        console.log('Connected');
-        //connection.send('Connect ' + new Date());
-        //connection.send('/status');
-      };
-      connection.onerror = function (error) {
-        console.log('WebSocket Error ', error);
-      };
-      connection.onmessage = function (e) {
-        console.log('Server: \n', e.data);
-        
-        const eventData = e.data.split('~');
-        var eventName = eventData[0];
-        var eventBody = JSON.parse(eventData[1]);
+    <meta http-equiv="Content-type" content="text/html"; charset="utf-8">
+    <title>Web relays</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
 
-        // console.log('eventName: ', eventName);
-        // console.log('eventBody: ', eventBody);
-        
-        if(eventName === "status") {
-          for(relay in eventBody.relays) {
-            tableRelaysAdd(eventBody.relays[relay]);
-          }          
-        } 
-        
-        if(eventName.startsWith("relay")) {
-          // update button
-          buttonImageFile = (eventBody.value == 0 ? "off.svg" : "on.svg")
-          buttonImage = "<img src=\"/" + buttonImageFile +"\" height=\"40\" width=\"32\"/>"
+      var ws;
+
+      function ws_connect() {
+        ws = new WebSocket('ws://' + location.hostname + ':80/ws', ['arduino']);
+        // ws = new WebSocket('ws://192.168.1.40:80/ws', ['arduino']);
+
+        ws.onopen = function () {
+          console.log('Connected');
+          //ws.send('Connect ' + new Date());
+          //ws.send('/status');
+        };
+        ws.onclose = function(e) {
+          console.log('Socket is closed. Reconnect will be attempted in 5 second.', e.reason);
+          setTimeout(function() {
+            ws_connect();
+          }, 5000);
+        };
+        ws.onerror = function (error) {
+          console.log('WebSocket Error ', error);
+        };
+        ws.onmessage = function (e) {
+          console.log('Server: \n', e.data);
           
-          // console.log('buttonImage: \n', buttonImage);
-          // console.log('id: \n', eventBody.id);
-          document.getElementById("switch" + eventBody.id).innerHTML = buttonImage;
-        }
-        
-      };
+          const eventData = e.data.split('~');
+          var eventName = eventData[0];
+          var eventBody = JSON.parse(eventData[1]);
+
+          // console.log('eventName: ', eventName);
+          // console.log('eventBody: ', eventBody);
+          
+          if(eventName === "status") {
+            for(relay in eventBody.relays) {
+              tableRelaysAdd(eventBody.relays[relay]);
+            }          
+          } 
+          
+          if(eventName.startsWith("relay")) {
+            // update button
+            buttonImageFile = (eventBody.value == 0 ? "off.svg" : "on.svg")
+            buttonImage = "<img src=\"/" + buttonImageFile +"\" height=\"40\" width=\"32\"/>"
+            
+            // console.log('buttonImage: \n', buttonImage);
+            // console.log('id: \n', eventBody.id);
+            document.getElementById("switch" + eventBody.id).innerHTML = buttonImage;
+          }
+        };
+      }
+
+      ws_connect();
 
       function tableRelaysAdd(relay) {
         buttonImageFile = (relay.value == 0 ? "off.svg" : "on.svg")
@@ -60,14 +73,13 @@
       
       function relaySwitch(id) {
         console.log('Relay: ' + id);
-        connection.send('relays/set?' + id + "=-1");
+        ws.send('relays/set?' + id + "=-1");
       }
 
       function relayTest() {
         console.log('Relay Test:');
-        connection.send('relays/test');
+        ws.send('relays/test');
       }
-
     </script>
   </head>
   <body>

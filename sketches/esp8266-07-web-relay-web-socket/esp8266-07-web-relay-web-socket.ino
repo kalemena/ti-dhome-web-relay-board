@@ -128,9 +128,7 @@ void setup() {
     });
     server.on("/status", HTTP_GET, controller_status);
     server.on("/test", HTTP_GET, controller_test);
-    server.on("/switch", HTTP_GET, controller_switch_relay);
-    server.on("/gpios/status", HTTP_GET, controller_gpio_status);
-    server.on("/gpios/switch", HTTP_GET, controller_gpio_switch);
+    server.on("/relays/set", HTTP_GET, controller_relay_set);
 
     //called when the url is not defined here
     //use it to load content from LittleFS
@@ -166,7 +164,7 @@ void setup() {
     delay(10);
     
     // reset to 0
-    operation_switch_relay_internal(0);
+    operation_relay_set_internal(0);
 }
 
 void loop() {
@@ -220,7 +218,7 @@ char* StringToChar(String s) {
 /**
 Value is anything between 0 to 65535 representing 16 bits of data I/Os
 */
-void operation_switch_relay_internal(int value) 
+void operation_relay_set_internal(int value) 
 {
    // take the latchPin low so 
    // the LEDs don't change while you're sending in bits:
@@ -235,7 +233,7 @@ void operation_switch_relay_internal(int value)
    digitalWrite(latchPin, HIGH);
 }
 
-int operation_switch_relay(int relayNb, int relayStateWanted) {
+int operation_relay_set(int relayNb, int relayStateWanted) {
   // int relayStateWanted = -1;
   int thisRelayState = (relayState >> relayNb) & 1;
   int relayStateResponse = thisRelayState;
@@ -255,7 +253,7 @@ int operation_switch_relay(int relayNb, int relayStateWanted) {
   }
   
   Serial.println("Relays = " + String(relayState));  
-  operation_switch_relay_internal(relayState);
+  operation_relay_set_internal(relayState);
 
   webSocket.broadcastTXT(String("relay~{ \"id\": ") + relayNb + String(", \"value\":") + String(relayStateResponse) + String(" }"));
 
@@ -265,9 +263,9 @@ int operation_switch_relay(int relayNb, int relayStateWanted) {
 void operation_test() {
   int pause = 500;  
   for (int switchId = 15; switchId >= 0; switchId--) {
-    operation_switch_relay(switchId, -1); 
+    operation_relay_set(switchId, -1); 
     delay(pause);
-    operation_switch_relay(switchId, -1);
+    operation_relay_set(switchId, -1);
     delay(pause);
   }
 }
@@ -422,13 +420,7 @@ void controller_test() {
   operation_test();
 }
 
-void controller_gpio_status() {  
-  String json = render_relays_status_body();
-  server.send(200, "application/json", json);
-  json = String();
-}
-
-void controller_switch_relay() {
+void controller_relay_set() {
   if(!server.hasArg("id")) {
     return;
   }
@@ -439,42 +431,9 @@ void controller_switch_relay() {
   }
     
   int relayNb = server.arg("id").toInt();
-  int thisRelayState = (relayState >> relayNb) & 1;
-  
-  Serial.println("Relay " + String(relayNb) + "(" + relayWantedState + ") => " + String(thisRelayState));
+  operation_relay_set(relayNb, relayWantedState);
 
-  // switch on
-  if(thisRelayState == 0 && relayWantedState != 0)
-    relayState |= (1 << relayNb);
-
-  // switch off
-  if(thisRelayState == 1 && relayWantedState != 1)
-    relayState &= ~(1 << relayNb);
-  
-  Serial.println("Relays = " + String(relayState));  
-  operation_switch_relay_internal(relayState);
-}
-
-void controller_gpio_switch() {
-  if(!server.hasArg("id")) {    
-    server.send(200, "text/plain", "Bad Parameter");
-    return;
-  }
-  
-  int relayNb = server.arg("id").toInt();
-  int thisRelayState = (relayState >> relayNb) & 1;
-  
-  Serial.println("Relay " + String(relayNb) + "=" + String(thisRelayState));
-  
-  if(thisRelayState == 0)
-    relayState |= (1 << relayNb);
-  else
-    relayState &= ~(1 << relayNb);
-  
-  Serial.println("Relays = " + String(relayState));  
-  operation_switch_relay_internal(relayState);
-   
-  server.send(200, "text/plain", "");  
+  server.send(200, "text/plain", "");
 }
 
 // ===== WEB-SOCKET
@@ -516,13 +475,13 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                   json = String();
                   
                 } else if(payloadStr.startsWith("relays/set?")) {
-                
                   int idxEqual = payloadStr.indexOf("=");
                   if(idxEqual > 0 && idxEqual < payloadStr.length()) {
                     String switchId = payloadStr.substring(11, idxEqual);
                     String switchValue = payloadStr.substring(idxEqual+1);
-                    int relayState = operation_switch_relay(switchId.toInt(),switchValue.toInt());
+                    int relayState = operation_relay_set(switchId.toInt(),switchValue.toInt());
                   }
+                  
                 } else if(payloadStr.startsWith("relays/test")) {
                   operation_test();
                   
@@ -535,7 +494,6 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
         case WStype_BIN:
             Serial.printf("[%u] get binary length: %u\n", num, length);
             hexdump(payload, length);
-
             // send message to client
             // webSocket.sendBIN(num, payload, length);
             break;
