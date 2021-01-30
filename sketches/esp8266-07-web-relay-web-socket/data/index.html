@@ -38,9 +38,11 @@
           // console.log('eventBody: ', eventBody);
           
           if(eventName === "status") {
+            $("#tableRelays tbody").children().remove()
+            
             for(relay in eventBody.relays) {
               tableRelaysAdd(eventBody.relays[relay]);
-            }          
+            }
           } 
           
           if(eventName.startsWith("relay")) {
