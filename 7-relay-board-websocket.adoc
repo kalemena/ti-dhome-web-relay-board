@@ -1,0 +1,20 @@
+:toc:
+
+== 7 - WebSocket
+
+Adding WebSocket code for Arduino and Web UI.
+
+Also updated SPIFFS to LittleFS.
+
+[TIP]
+====
+To test, 
+- open Web UI at http://iotrelays.local/ 
+- *curl http://iotrelays.local/test 
+
+This initiate the rolling on/off test on each relay one by one.
+The UI should move according to relay current state because it receives web socket events.
+====
+
+* link:/sketches/esp8266-07-web-relay-web-socket/esp8266-07-web-relay-web-socket.ino[Sketch]
+* link:/sketches/esp8266-07-web-relay-web-socket/data/index.html[Web UI]
