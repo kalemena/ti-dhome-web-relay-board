@@ -102,7 +102,7 @@ void setup() {
       Serial.println("Couldn't find sensor!");
       while (1);
     }
-    
+
     delay(10);
 
     // 74HC595
@@ -181,13 +181,6 @@ void setup() {
     
     // reset to 0
     operation_relay_set_internal(0);
-}
-
-void read_TH() {
-    lastTemperature = round(htu.readTemperature()*100)/100.0;
-    lastHumidity = round(htu.readHumidity()*100)/100.0;
-    Serial.printf("Temp=%.2f C / Humidity=%.2f \%", lastTemperature, lastHumidity);
-    delay(50);
 }
 
 void loop() {
@@ -291,6 +284,14 @@ void operation_test() {
     operation_relay_set(switchId, -1);
     delay(pause);
   }
+}
+
+void operation_read_TH() {
+    lastTemperature = round(htu.readTemperature()*100)/100.0;
+    lastHumidity = round(htu.readHumidity()*100)/100.0;
+    Serial.printf("Temp=%.2f C / Humidity=%.2f \%", lastTemperature, lastHumidity);
+
+    webSocket.broadcastTXT(String("sensors~{ \"t\": ") + String(lastTemperature) + String(", \"h\":") + String(lastHumidity) + String(" }"));
 }
 
 // ===== CONTROLLER - FILE
@@ -402,10 +403,8 @@ String render_status(String message) {
   json += "   \"vcc\": " + String(ESP.getVcc()) + ",\n";
   json += "   \"gpio\": " + String((uint32_t)(((GPI | GPO) & 0xFFFF) | ((GP16I & 0x01) << 16))) + "\n";
   json += "  },\n";
-  json += " \"sensors\": {\n";
-  json += "   \"temperature\": " + String(lastTemperature) + "\n,";
-  json += "   \"humidity\": " + String(lastHumidity) + "\n";
-  json += "  },\n";
+  json += render_TH();
+  json += ",\n";
   json += render_relays_status();
   if(message != "") {
     json += ",\n \"message\": \"" + message + "\"\n";
@@ -413,6 +412,16 @@ String render_status(String message) {
     json += "\n";
   }
   json += "}\n";
+  return json;
+}
+
+String render_TH() {
+  operation_read_TH();
+  
+  String json = " \"sensors\": {\n";
+  json += "   \"temperature\": " + String(lastTemperature) + "\n,";
+  json += "   \"humidity\": " + String(lastHumidity) + "\n";
+  json += "  }";
   return json;
 }
 
@@ -437,8 +446,6 @@ String render_relays_status() {
 }
 
 void controller_status() {
-  read_TH();
-    
   String json = render_status("status");
   server.send(200, "application/json", json);
   json = String();
@@ -516,6 +523,9 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                   
                 } else if(payloadStr.startsWith("relays/test")) {
                   operation_test();
+                  
+                } else if(payloadStr.startsWith("sensors")) {
+                  operation_read_TH();
                   
                 } else {
                   Serial.println("Unknown command");
