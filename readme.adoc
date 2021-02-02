@@ -93,6 +93,7 @@ Here are described step by step experiments to reach final product.
 - link:5-relay-board-esp12e.adoc[Iteration 5: Relay Board ESP12E (aborted)]
 - link:6-relay-board-pcb1.adoc[Iteration 6: Relay Board PCB]
 - link:7-relay-board-websocket.adoc[Iteration 7: Relay Board WebSocket]
+- link:8-relay-board-th-teleinfo.adoc[Iteration 8: Relay Board with Sensors]
 
 == Links
 

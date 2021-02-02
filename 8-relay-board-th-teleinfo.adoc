@@ -1,0 +1,21 @@
+:toc:
+
+== 8 - T/H and Teleinfo
+
+Adding Sensors Temperature, Humidity and France Power (Teleinfo).
+
+The board created in previous iterations supports a T/H sensor HTU21 and the components required for Teleinfo.
+
+Examples:
+
+* link:https://github.com/kalemena/iot-tools/blob/master/sketches/esp8266-htu21d-test/esp8266-htu21d-test.ino[Example HTU21S]
+* link:https://github.com/kalemena/iot-tools/blob/master/sketches/teleinfo/teleinfo.ino[Example Téléinfo]
+
+Complete sources:
+
+* link:/sketches/esp8266-08-web-relay-th-teleinfo/esp8266-08-web-relay-th-teleinfo.ino[Sketch]
+* link:/sketches/esp8266-08-web-relay-th-teleinfo/data/index.html[Web UI]
+
+== References
+
+* link:https://github.com/hallard/LibTeleinfo/blob/master/examples/Wifinfo/Wifinfo.ino[Hallard LibTeleinfo]
