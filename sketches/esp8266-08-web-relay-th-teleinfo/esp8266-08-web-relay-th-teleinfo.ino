@@ -419,7 +419,7 @@ String render_TH() {
   operation_read_TH();
   
   String json = " \"sensors\": {\n";
-  json += "   \"temperature\": " + String(lastTemperature) + "\n,";
+  json += "   \"temperature\": " + String(lastTemperature) + ",\n";
   json += "   \"humidity\": " + String(lastHumidity) + "\n";
   json += "  }";
   return json;
