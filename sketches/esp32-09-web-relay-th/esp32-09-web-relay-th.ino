@@ -6,12 +6,22 @@
   edit the page by going to http://iotrelays.local/edit
 */
 
+#include <Arduino.h>
+#include "FS.h"
+#include "SPIFFS.h"
+
 #include <WiFi.h>
 
-const char* ssid     = "<ssid>";
-const char* password = "<password>";
-
 WiFiServer server(80);
+
+#define DEBUG true
+#define Serial if(DEBUG)Serial
+
+// ===== CONFIGURATION
+
+#include "settings.h"
+
+// ===== SETUP
 
 void setup()
 {
@@ -20,13 +30,11 @@ void setup()
 
     delay(10);
 
-    // We start by connecting to a WiFi network
+    // ===== WiFi
 
-    Serial.println();
-    Serial.println();
+    Serial.println("===========");
     Serial.print("Connecting to ");
     Serial.println(ssid);
-
     WiFi.begin(ssid, password);
 
     while (WiFi.status() != WL_CONNECTED) {
@@ -38,7 +46,19 @@ void setup()
     Serial.println("WiFi connected.");
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
+
+    // ===== File System
+
+    if(!SPIFFS.begin(false)){
+      Serial.println("SPIFFS Mount Failed");
+      return;
+    } else {
+      Serial.println("SPIFFS Mount OK");
+    }
     
+    listDir(SPIFFS, "/", 3);
+
+    // HTTP start
     server.begin();
 
 }
@@ -94,4 +114,37 @@ void loop(){
     client.stop();
     Serial.println("Client Disconnected.");
   }
+}
+
+// TOOLS
+
+void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
+    Serial.printf("Listing directory: %s\r\n", dirname);
+
+    File root = fs.open(dirname);
+    if(!root){
+        Serial.println("- failed to open directory");
+        return;
+    }
+    if(!root.isDirectory()){
+        Serial.println(" - not a directory");
+        return;
+    }
+
+    File file = root.openNextFile();
+    while(file){
+        if(file.isDirectory()){
+            Serial.print("  DIR : ");
+            Serial.println(file.name());
+            if(levels){
+                listDir(fs, file.name(), levels -1);
+            }
+        } else {
+            Serial.print("  FILE: ");
+            Serial.print(file.name());
+            Serial.print("\tSIZE: ");
+            Serial.println(file.size());
+        }
+        file = root.openNextFile();
+    }
 }
