@@ -12,6 +12,13 @@
 
 #include <WiFi.h>
 
+// HTU21
+#include <Wire.h>
+#include "Adafruit_HTU21DF.h"
+Adafruit_HTU21DF htu = Adafruit_HTU21DF();
+float lastTemperature = 0.0;
+float lastHumidity = 0.0;
+
 WiFiServer server(80);
 
 #define DEBUG true
@@ -23,39 +30,38 @@ WiFiServer server(80);
 
 // ===== SETUP
 
-void setup()
-{
+void setup() {
     Serial.begin(115200);
-    pinMode(5, OUTPUT);      // set the LED pin mode
+  Serial.println("HTU21D-F test");
 
-    delay(10);
+  while(!htu.begin()) {
+    Serial.println("Couldn't find sensor ...");
+    delay(100);
+    }
 
     // ===== WiFi
-
+    delay(10);
     Serial.println("===========");
     Serial.print("Connecting to ");
     Serial.println(ssid);
     WiFi.begin(ssid, password);
-
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         Serial.print(".");
     }
-
     Serial.println("");
     Serial.println("WiFi connected.");
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
 
     // ===== File System
-
+    delay(10);
     if(!SPIFFS.begin(false)){
       Serial.println("SPIFFS Mount Failed");
       return;
     } else {
       Serial.println("SPIFFS Mount OK");
     }
-    
     listDir(SPIFFS, "/", 3);
 
     // HTTP start
@@ -66,6 +72,10 @@ void setup()
 int value = 0;
 
 void loop(){
+
+  delay(5000);
+  operation_read_TH();
+  
  WiFiClient client = server.available();   // listen for incoming clients
 
   if (client) {                             // if you get a client,
@@ -116,6 +126,7 @@ void loop(){
   }
 }
 
+
 // TOOLS
 
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
@@ -147,4 +158,14 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
         }
         file = root.openNextFile();
     }
+}
+
+// OPERATIONS
+
+void operation_read_TH() {
+    lastTemperature = round(htu.readTemperature()*100)/100.0;
+    lastHumidity = round(htu.readHumidity()*100)/100.0;
+    Serial.printf("Temp=%.2f C° / Humidity=%.2f \%\n", lastTemperature, lastHumidity);
+
+    // webSocket.broadcastTXT(String("sensors~{ \"t\": ") + String(lastTemperature) + String(", \"h\":") + String(lastHumidity) + String(" }"));
 }
