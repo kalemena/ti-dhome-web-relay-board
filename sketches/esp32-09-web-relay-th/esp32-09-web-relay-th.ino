@@ -19,6 +19,10 @@ Adafruit_HTU21DF htu = Adafruit_HTU21DF();
 float lastTemperature = 0.0;
 float lastHumidity = 0.0;
 
+// Relays
+// holds 16 bits
+unsigned int relayState = 0;
+
 WiFiServer server(80);
 
 #define DEBUG true
@@ -31,42 +35,55 @@ WiFiServer server(80);
 // ===== SETUP
 
 void setup() {
-    Serial.begin(115200);
-  Serial.println("HTU21D-F test");
+  Serial.begin(115200);
+  Serial.setDebugOutput(true);
 
+  Serial.println();
+  Serial.println("Initializing ...");
+  Serial.println();
+
+  // ===== HTU21D
   while(!htu.begin()) {
     Serial.println("Couldn't find sensor ...");
     delay(100);
-    }
+  }
 
-    // ===== WiFi
-    delay(10);
-    Serial.println("===========");
-    Serial.print("Connecting to ");
-    Serial.println(ssid);
-    WiFi.begin(ssid, password);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.println("");
-    Serial.println("WiFi connected.");
-    Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());
+  // ===== Relays on 74HC595
+  // Set pins to output so you can control the shift register
+  pinMode(latchPin, OUTPUT);
+  pinMode(clockPin, OUTPUT);
+  pinMode(dataPin, OUTPUT);
+  
+  // reset to 0
+  operation_relay_set_internal(0);
 
-    // ===== File System
-    delay(10);
-    if(!SPIFFS.begin(false)){
-      Serial.println("SPIFFS Mount Failed");
-      return;
-    } else {
-      Serial.println("SPIFFS Mount OK");
-    }
-    listDir(SPIFFS, "/", 3);
+  // ===== WiFi
+  delay(10);
+  Serial.println("===========");
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
 
-    // HTTP start
-    server.begin();
+  // ===== File System
+  delay(10);
+  if(!SPIFFS.begin(false)){
+    Serial.println("SPIFFS Mount Failed");
+    return;
+  } else {
+    Serial.println("SPIFFS Mount OK");
+  }
+  listDir(SPIFFS, "/", 3);
 
+  // HTTP start
+  server.begin();
 }
 
 int value = 0;
@@ -168,4 +185,65 @@ void operation_read_TH() {
     Serial.printf("Temp=%.2f C° / Humidity=%.2f \%\n", lastTemperature, lastHumidity);
 
     // webSocket.broadcastTXT(String("sensors~{ \"t\": ") + String(lastTemperature) + String(", \"h\":") + String(lastHumidity) + String(" }"));
+}
+
+/**
+ * Value is anything between 0 to 65535 representing 16 bits of data I/Os
+ */
+void operation_relay_set_internal(int value) 
+{
+   // take the latchPin low so 
+   // the LEDs don't change while you're sending in bits:
+   digitalWrite(latchPin, LOW);
+   
+   // shift out the highbyte
+   shiftOut(dataPin, clockPin, MSBFIRST, (value >> 8));
+   // shift out the lowbyte
+   shiftOut(dataPin, clockPin, MSBFIRST, value);
+   
+   //take the latch pin high so the LEDs will light up:
+   digitalWrite(latchPin, HIGH);
+}
+
+/**
+ * Set Relay state to specified value 0, 1 or -1 for switch
+ */
+int operation_relay_set(int relayNb, int relayStateWanted) {
+  // int relayStateWanted = -1;
+  int thisRelayState = (relayState >> relayNb) & 1;
+  int relayStateResponse = thisRelayState;
+  
+  Serial.println("Relay " + String(relayNb) + "(" + relayStateWanted + ") => " + String(thisRelayState));
+
+  // switch on
+  if(thisRelayState == 0 && relayStateWanted != 0) {
+    relayState |= (1 << relayNb);
+    relayStateResponse = 1;
+  }
+
+  // switch off
+  if(thisRelayState == 1 && relayStateWanted != 1) {
+    relayState &= ~(1 << relayNb);
+    relayStateResponse = 0;
+  }
+  
+  Serial.println("Relays = " + String(relayState));  
+  operation_relay_set_internal(relayState);
+
+  // webSocket.broadcastTXT(String("relay~{ \"id\": ") + relayNb + String(", \"value\":") + String(relayStateResponse) + String(" }"));
+
+  return relayStateResponse;
+}
+
+/**
+ * Tests all the relays, one by one with on/off
+ */
+void operation_test() {
+  int pause = 500;  
+  for (int switchId = 15; switchId >= 0; switchId--) {
+    operation_relay_set(switchId, -1); 
+    delay(pause);
+    operation_relay_set(switchId, -1);
+    delay(pause);
+  }
 }
