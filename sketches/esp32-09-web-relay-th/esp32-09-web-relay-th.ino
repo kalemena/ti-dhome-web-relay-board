@@ -98,63 +98,9 @@ void setup() {
   server.begin();
 }
 
-int value = 0;
-
 void loop(){
   server.handleClient();
   webSocket.loop();
-//  
-//  delay(5000);
-//  operation_read_TH();
-//  
-// WiFiClient client = server.available();   // listen for incoming clients
-//
-//  if (client) {                             // if you get a client,
-//    Serial.println("New Client.");           // print a message out the serial port
-//    String currentLine = "";                // make a String to hold incoming data from the client
-//    while (client.connected()) {            // loop while the client's connected
-//      if (client.available()) {             // if there's bytes to read from the client,
-//        char c = client.read();             // read a byte, then
-//        Serial.write(c);                    // print it out the serial monitor
-//        if (c == '\n') {                    // if the byte is a newline character
-//
-//          // if the current line is blank, you got two newline characters in a row.
-//          // that's the end of the client HTTP request, so send a response:
-//          if (currentLine.length() == 0) {
-//            // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
-//            // and a content-type so the client knows what's coming, then a blank line:
-//            client.println("HTTP/1.1 200 OK");
-//            client.println("Content-type:text/html");
-//            client.println();
-//
-//            // the content of the HTTP response follows the header:
-//            client.print("Click <a href=\"/H\">here</a> to turn the LED on pin 5 on.<br>");
-//            client.print("Click <a href=\"/L\">here</a> to turn the LED on pin 5 off.<br>");
-//
-//            // The HTTP response ends with another blank line:
-//            client.println();
-//            // break out of the while loop:
-//            break;
-//          } else {    // if you got a newline, then clear currentLine:
-//            currentLine = "";
-//          }
-//        } else if (c != '\r') {  // if you got anything else but a carriage return character,
-//          currentLine += c;      // add it to the end of the currentLine
-//        }
-//
-//        // Check to see if the client request was "GET /H" or "GET /L":
-//        if (currentLine.endsWith("GET /H")) {
-//          digitalWrite(5, HIGH);               // GET /H turns the LED on
-//        }
-//        if (currentLine.endsWith("GET /L")) {
-//          digitalWrite(5, LOW);                // GET /L turns the LED off
-//        }
-//      }
-//    }
-//    // close the connection:
-//    client.stop();
-//    Serial.println("Client Disconnected.");
-//  }
 }
 
 // ===== TOOLS
@@ -203,6 +149,24 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
     }
 }
 
+String getContentType(String filename){
+  if(server.hasArg("download")) return "application/octet-stream";
+  else if(filename.endsWith(".htm")) return "text/html";
+  else if(filename.endsWith(".html")) return "text/html";
+  else if(filename.endsWith(".css")) return "text/css";
+  else if(filename.endsWith(".js")) return "application/javascript";
+  else if(filename.endsWith(".png")) return "image/png";
+  else if(filename.endsWith(".gif")) return "image/gif";
+  else if(filename.endsWith(".jpg")) return "image/jpeg";
+  else if(filename.endsWith(".ico")) return "image/x-icon";
+  else if(filename.endsWith(".xml")) return "text/xml";
+  else if(filename.endsWith(".pdf")) return "application/x-pdf";
+  else if(filename.endsWith(".zip")) return "application/x-zip";
+  else if(filename.endsWith(".gz")) return "application/x-gzip";
+  else if(filename.endsWith(".svg")) return "image/svg+xml";
+  return "text/plain";
+}
+
 // ===== OPERATIONS
 
 void operation_read_TH() {
@@ -210,7 +174,7 @@ void operation_read_TH() {
     lastHumidity = round(htu.readHumidity()*100)/100.0;
     Serial.printf("Temp=%.2f C° / Humidity=%.2f \%\n", lastTemperature, lastHumidity);
 
-    // webSocket.broadcastTXT(String("sensors~{ \"t\": ") + String(lastTemperature) + String(", \"h\":") + String(lastHumidity) + String(" }"));
+    webSocket.broadcastTXT(String("sensors~{ \"t\": ") + String(lastTemperature) + String(", \"h\":") + String(lastHumidity) + String(" }"));
 }
 
 /**
@@ -256,7 +220,7 @@ int operation_relay_set(int relayNb, int relayStateWanted) {
   Serial.println("Relays = " + String(relayState));  
   operation_relay_set_internal(relayState);
 
-  // webSocket.broadcastTXT(String("relay~{ \"id\": ") + relayNb + String(", \"value\":") + String(relayStateResponse) + String(" }"));
+  webSocket.broadcastTXT(String("relay~{ \"id\": ") + relayNb + String(", \"value\":") + String(relayStateResponse) + String(" }"));
 
   return relayStateResponse;
 }
@@ -331,6 +295,27 @@ String render_relays_status() {
   return json;
 }
 
+void controller_handleNotFound() {
+  if(!controller_file_read(server.uri()))
+    server.send(404, "text/plain","404: Not found");
+}
+
+bool controller_file_read(String path){
+  Serial.println("handleFileRead: " + path);
+  if(path.endsWith("/")) path += "index.htm";
+  String contentType = getContentType(path);
+  String pathWithGz = path + ".gz";
+  if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)){
+    if(SPIFFS.exists(pathWithGz))
+      path += ".gz";
+    File file = SPIFFS.open(path, "r");
+    size_t sent = server.streamFile(file, contentType);
+    file.close();
+    return true;
+  }
+  return false;
+}
+
 // ===== WEBSOCKET
 
 void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
@@ -394,11 +379,4 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
     case WStype_FRAGMENT_FIN:
       break;
     }
-}
-
-// ===== CONTROLLERS
-
-void controller_handleNotFound() {
-  // if(!controller_file_read(server.uri()))
-    server.send(404, "text/plain","404: Not found");
 }
