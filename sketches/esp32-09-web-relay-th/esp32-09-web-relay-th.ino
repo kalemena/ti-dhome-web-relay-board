@@ -11,9 +11,10 @@
 #include "SPIFFS.h"
 
 #include <WiFi.h>
+#include <WebServer.h>
 #include <WebSocketsServer.h>
 
-WiFiServer server(80);
+WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
 
 // HTU21
@@ -85,16 +86,22 @@ void setup() {
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 
+  // ===== Controllers
+  server.on("/", []() {
+      // send index.html
+      server.send(200, "text/html", "<html><head><meta http-equiv=\"refresh\" content=\"0; URL=/index.html\" /></head></html>");
+  });
+  server.onNotFound(controller_handleNotFound); 
+
   webSocket.begin();
   webSocket.onEvent(websocket_event);
-  
   server.begin();
 }
 
 int value = 0;
 
 void loop(){
-
+  server.handleClient();
   webSocket.loop();
 //  
 //  delay(5000);
@@ -150,6 +157,8 @@ void loop(){
 //  }
 }
 
+// ===== TOOLS
+
 void hexdump(const void *mem, uint32_t len, uint8_t cols = 16) {
   const uint8_t* src = (const uint8_t*) mem;
   Serial.printf("\n[HEXDUMP] Address: 0x%08X len: 0x%X (%d)", (ptrdiff_t)src, len, len);
@@ -162,48 +171,6 @@ void hexdump(const void *mem, uint32_t len, uint8_t cols = 16) {
   }
   Serial.printf("\n");
 }
-
-void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
-
-    switch(type) {
-        case WStype_DISCONNECTED:
-            Serial.printf("[%u] Disconnected!\n", num);
-            break;
-        case WStype_CONNECTED:
-            {
-                IPAddress ip = webSocket.remoteIP(num);
-                Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-
-        // send message to client
-        webSocket.sendTXT(num, "Connected");
-            }
-            break;
-        case WStype_TEXT:
-            Serial.printf("[%u] get Text: %s\n", num, payload);
-
-            // send message to client
-            // webSocket.sendTXT(num, "message here");
-
-            // send data to all connected clients
-            // webSocket.broadcastTXT("message here");
-            break;
-        case WStype_BIN:
-            Serial.printf("[%u] get binary length: %u\n", num, length);
-            hexdump(payload, length);
-
-            // send message to client
-            // webSocket.sendBIN(num, payload, length);
-            break;
-    case WStype_ERROR:      
-    case WStype_FRAGMENT_TEXT_START:
-    case WStype_FRAGMENT_BIN_START:
-    case WStype_FRAGMENT:
-    case WStype_FRAGMENT_FIN:
-      break;
-    }
-}
-
-// ===== TOOLS
 
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
     Serial.printf("Listing directory: %s\r\n", dirname);
@@ -236,7 +203,7 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
     }
 }
 
-// OPERATIONS
+// ===== OPERATIONS
 
 void operation_read_TH() {
     lastTemperature = round(htu.readTemperature()*100)/100.0;
@@ -305,4 +272,133 @@ void operation_test() {
     operation_relay_set(switchId, -1);
     delay(pause);
   }
+}
+
+// ===== CONTROLLERS
+
+String render_status(String message) {
+  String json = "{\n";
+  json += " \"system\": {\n";
+  json += "   \"heap\": " + String(ESP.getFreeHeap()) + ",\n";
+  // json += "   \"boot-version\": " + String(ESP.getBootVersion()) + ",\n";
+  // json += "   \"cpu-frequency\": " + String(system_get_cpu_freq()) + ",\n";
+  json += "   \"sdk\": \"" + String(system_get_sdk_version()) + "\"\n";
+  // json += "   \"chip-id\": " + String(system_get_chip_id()) + ",\n";
+  // json += "   \"flash-id\": " + String(spi_flash_get_id()) + ",\n";
+  // json += "   \"flash-size\": " + String(ESP.getFlashChipRealSize()) + ",\n";
+  // json += "   \"vcc\": " + String(ESP.getVcc()) + ",\n";
+  // json += "   \"gpio\": " + String((uint32_t)(((GPI | GPO) & 0xFFFF) | ((GP16I & 0x01) << 16))) + "\n";
+  json += "  },\n";
+  json += render_TH();
+  json += ",\n";
+  json += render_relays_status();
+  if(message != "") {
+    json += ",\n \"message\": \"" + message + "\"\n";
+  } else {
+    json += "\n";
+  }
+  json += "}\n";
+  return json;
+}
+
+String render_TH() {
+  operation_read_TH();
+  
+  String json = " \"sensors\": {\n";
+  json += "   \"temperature\": " + String(lastTemperature) + ",\n";
+  json += "   \"humidity\": " + String(lastHumidity) + "\n";
+  json += "  }";
+  return json;
+}
+
+String render_relays_status_body() {
+  String json = "{\n";
+  json += render_relays_status() + "\n";
+  json += "}\n";
+  return json;
+}
+
+String render_relays_status() {
+  String json = " \"relays\": [\n";
+  for (int switchId = 0; switchId < 16; switchId++) {
+    int thisRelayState = (relayState >> switchId) & 1;
+    json += "    { \"description\": \"" + String(sensors[switchId]) + "\", \"id\": " + String(switchId) + ", \"value\":" + String(thisRelayState) + " }";
+    if(switchId < 15)
+      json += ",";
+    json += "\n";
+  }
+  json += "  ]";
+  return json;
+}
+
+// ===== WEBSOCKET
+
+void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
+
+    switch(type) {
+        case WStype_DISCONNECTED:
+            Serial.printf("[%u] Disconnected!\n", num);
+            break;
+        case WStype_CONNECTED:
+            {
+                IPAddress ip = webSocket.remoteIP(num);
+                Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
+
+                // send message to client
+                // webSocket.sendTXT(num, "Connected");
+                String json = render_status("");
+                webSocket.sendTXT(num, String("status~") + json);
+                json = String();
+            }
+            break;
+        case WStype_TEXT:
+            {
+                Serial.printf("[%u] get Text: %s\n", num, payload);
+
+                String payloadStr = String((const char *)payload);
+                if(payloadStr.startsWith("/status")) {
+                  String json = render_status("");
+                  webSocket.sendTXT(num, String("status~") + json);
+                  json = String();
+                  
+                } else if(payloadStr.startsWith("relays/set?")) {
+                  int idxEqual = payloadStr.indexOf("=");
+                  if(idxEqual > 0 && idxEqual < payloadStr.length()) {
+                    String switchId = payloadStr.substring(11, idxEqual);
+                    String switchValue = payloadStr.substring(idxEqual+1);
+                    int relayState = operation_relay_set(switchId.toInt(),switchValue.toInt());
+                  }
+                  
+                } else if(payloadStr.startsWith("relays/test")) {
+                  operation_test();
+                  
+                } else if(payloadStr.startsWith("sensors")) {
+                  operation_read_TH();
+                  
+                } else {
+                  Serial.println("Unknown command");
+                }
+            }
+            break;
+        case WStype_BIN:
+            Serial.printf("[%u] get binary length: %u\n", num, length);
+            hexdump(payload, length);
+
+            // send message to client
+            // webSocket.sendBIN(num, payload, length);
+            break;
+    case WStype_ERROR:      
+    case WStype_FRAGMENT_TEXT_START:
+    case WStype_FRAGMENT_BIN_START:
+    case WStype_FRAGMENT:
+    case WStype_FRAGMENT_FIN:
+      break;
+    }
+}
+
+// ===== CONTROLLERS
+
+void controller_handleNotFound() {
+  // if(!controller_file_read(server.uri()))
+    server.send(404, "text/plain","404: Not found");
 }
