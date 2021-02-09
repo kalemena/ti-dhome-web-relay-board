@@ -10,6 +10,7 @@
 #include "FS.h"
 #include "SPIFFS.h"
 
+#include <ESPmDNS.h>
 #include <WiFi.h>
 #include <WebServer.h>
 #include <WebSocketsServer.h>
@@ -95,6 +96,15 @@ void setup() {
   server.on("/relays/set", HTTP_GET, controller_relay_set);
   server.onNotFound(controller_handleNotFound); 
 
+  // ===== mDNS
+  if(!MDNS.begin(host)) {
+     Serial.println("Error starting mDNS");
+     return;
+  }
+  // Add service to mDNS
+  MDNS.addService("http", "tcp", 80);
+
+  // ===== Listen
   webSocket.begin();
   webSocket.onEvent(websocket_event);
   server.begin();
