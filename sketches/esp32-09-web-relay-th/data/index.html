@@ -10,8 +10,9 @@
       var ws;
 
       function ws_connect() {
-        ws = new WebSocket('ws://' + location.hostname + ':80/ws', ['arduino']);
+        ws = new WebSocket('ws://' + location.hostname + ':81', ['arduino']);
         // ws = new WebSocket('ws://192.168.1.40:80/ws', ['arduino']);
+        // ws = new WebSocket('ws://192.168.1.55:81', ['arduino']);
 
         ws.onopen = function () {
           console.log('Connected');

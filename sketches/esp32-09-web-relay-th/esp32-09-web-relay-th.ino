@@ -13,7 +13,6 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <WebSocketsServer.h>
-
 WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
 
@@ -46,7 +45,7 @@ void setup() {
   Serial.println();
 
   // ===== File System
-  delay(10);
+  delay(100);
   if(!SPIFFS.begin(false)){
     Serial.println("SPIFFS Mount Failed");
     return;
@@ -56,6 +55,7 @@ void setup() {
   listDir(SPIFFS, "/", 3);
 
   // ===== HTU21D
+  delay(100);
   while(!htu.begin()) {
     Serial.println("Couldn't find sensor ...");
     delay(100);
@@ -74,8 +74,7 @@ void setup() {
   // ===== WiFi
   delay(10);
   Serial.println("===========");
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
+  Serial.printf("Connecting to %s\n", ssid);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -91,6 +90,9 @@ void setup() {
       // send index.html
       server.send(200, "text/html", "<html><head><meta http-equiv=\"refresh\" content=\"0; URL=/index.html\" /></head></html>");
   });
+  server.on("/status", HTTP_GET, controller_status);
+  server.on("/test", HTTP_GET, controller_test);
+  server.on("/relays/set", HTTP_GET, controller_relay_set);
   server.onNotFound(controller_handleNotFound); 
 
   webSocket.begin();
@@ -314,6 +316,36 @@ bool controller_file_read(String path){
     return true;
   }
   return false;
+}
+
+void controller_status() {
+  String json = render_status("status");
+  server.send(200, "application/json", json);
+  json = String();
+}
+
+void controller_test() {
+  server.send(200, "text/plain", "");
+  operation_test();
+}
+
+void controller_relay_set() {
+  if(!server.hasArg("id")) {
+    return;
+  }
+
+  int relayWantedState = -1;
+  if(server.hasArg("state")) {
+    relayWantedState = server.arg("state").toInt();
+  }
+    
+  int relayNb = server.arg("id").toInt();
+  int relayState = operation_relay_set(relayNb, relayWantedState);
+
+  String json = "{\n";
+  json += "  \"id\": " + String(relayNb) + ", \"value\": " + String(relayState) + "\n";
+  json += "}";
+  server.send(200, "text/plain", json);
 }
 
 // ===== WEBSOCKET
