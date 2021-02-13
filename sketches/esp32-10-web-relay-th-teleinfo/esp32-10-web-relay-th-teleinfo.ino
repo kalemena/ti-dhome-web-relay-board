@@ -210,7 +210,7 @@ void operation_read_TH() {
     lastHumidity = round(htu.readHumidity()*100)/100.0;
     Serial.printf("Temp=%.2f C° / Humidity=%.2f \%\n", lastTemperature, lastHumidity);
 
-    webSocket.broadcastTXT(String("sensors~{ \"t\": ") + String(lastTemperature) + String(", \"h\":") + String(lastHumidity) + String(" }"));
+    webSocket.broadcastTXT(String("sensors/th~{ \"t\": ") + String(lastTemperature) + String(", \"h\":") + String(lastHumidity) + String(" }"));
 }
 #endif
 
@@ -453,6 +453,8 @@ void DataCallback(ValueList * me, uint8_t  flags) {
   Serial.print(me->name);
   Serial.print("=");
   Serial.println(me->value);
+
+  webSocket.broadcastTXT(String("sensors/teleinfo~{ \"") + String(me->name) + String("\": \"") + String(me->value) + String("\" }"));
 }
 
 /* ======================================================================
@@ -524,7 +526,7 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                   operation_test();
                   
 #ifdef ENABLE_HTU21D                  
-                } else if(payloadStr.startsWith("sensors")) {
+                } else if(payloadStr.startsWith("sensors/th")) {
                   operation_read_TH();
 #endif
                   
