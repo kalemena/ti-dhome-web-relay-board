@@ -69,19 +69,22 @@
               document.getElementById("teleinfoPAPP").innerHTML = Number(eventBody.PAPP) + " W"
             }
             if(eventBody.HCHP) {
-              document.getElementById("teleinfoHCHP").innerHTML = Number(eventBody.HCHP) + " kWh"
+              document.getElementById("teleinfoHCHP").innerHTML = (Number(eventBody.HCHP) / 1000) + " kWh"
             }
             if(eventBody.HCHC) {
-              document.getElementById("teleinfoHCHC").innerHTML = Number(eventBody.HCHC) + " kWh"
+              document.getElementById("teleinfoHCHC").innerHTML = (Number(eventBody.HCHC) / 1000) + " kWh"
             }
             if(eventBody.PTEC) {
-              document.getElementById("teleinfoPTEC").innerHTML = Number(eventBody.PTEC)
+              document.getElementById("teleinfoPTEC").innerHTML = eventBody.PTEC
             }
             if(eventBody.ADPS) {
-              document.getElementById("teleinfoADPS").innerHTML = Number(eventBody.ADPS)
+              document.getElementById("teleinfoADPS").innerHTML = eventBody.ADPS
             }
             if(eventBody.HHPHC) {
-              document.getElementById("teleinfoHHPHC").innerHTML = Number(eventBody.HHPHC)
+              document.getElementById("teleinfoHHPHC").innerHTML = eventBody.HHPHC
+            }
+            if(eventBody.MOTDETAT) {
+              document.getElementById("teleinfoMOTDETAT").innerHTML = eventBody.MOTDETAT
             }
           }
         };
@@ -148,6 +151,7 @@
           <th>Periode</th>
           <th>Alert</th>
           <th>Groupe Horaire</th>
+          <th>Mode Etat</th>
         </tr>
       </thead>
       <tbody>
@@ -159,6 +163,7 @@
           <td id="teleinfoPTEC"></td>
           <td id="teleinfoADPS"></td>
           <td id="teleinfoHHPHC"></td>
+          <td id="teleinfoMOTDETAT"></td>
         </tr>
       </tbody> 
     </table>
