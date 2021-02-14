@@ -60,6 +60,30 @@
             document.getElementById("sensorsT").innerHTML = eventBody.t + " °C"
             document.getElementById("sensorsH").innerHTML = eventBody.h + " %"
           }
+
+          if(eventName.startsWith("sensors/teleinfo")) {
+            if(eventBody.IINST) {
+              document.getElementById("teleinfoIINST").innerHTML = (Number(eventBody.IINST) * 230) + " W"
+            }
+            if(eventBody.PAPP) {
+              document.getElementById("teleinfoPAPP").innerHTML = Number(eventBody.PAPP) + " W"
+            }
+            if(eventBody.HCHP) {
+              document.getElementById("teleinfoHCHP").innerHTML = Number(eventBody.HCHP) + " kWh"
+            }
+            if(eventBody.HCHC) {
+              document.getElementById("teleinfoHCHC").innerHTML = Number(eventBody.HCHC) + " kWh"
+            }
+            if(eventBody.PTEC) {
+              document.getElementById("teleinfoPTEC").innerHTML = Number(eventBody.PTEC)
+            }
+            if(eventBody.ADPS) {
+              document.getElementById("teleinfoADPS").innerHTML = Number(eventBody.ADPS)
+            }
+            if(eventBody.HHPHC) {
+              document.getElementById("teleinfoHHPHC").innerHTML = Number(eventBody.HHPHC)
+            }
+          }
         };
       }
 
@@ -111,6 +135,30 @@
           <td><button id="test" onclick="relayTest()">Relay Test</button></td>
           <td id="sensorsT"></td>
           <td id="sensorsH"></td>
+        </tr>
+      </tbody> 
+    </table>
+    <table id="tableTeleinfo">
+      <thead>
+        <tr>
+          <th>Power (I)</th>
+          <th>Power (P)</th>
+          <th>Cpt H.P.</th>
+          <th>Cpt H.C.</th>
+          <th>Periode</th>
+          <th>Alert</th>
+          <th>Groupe Horaire</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="teleinfoIINST"></td>
+          <td id="teleinfoPAPP"></td>
+          <td id="teleinfoHCHP"></td>
+          <td id="teleinfoHCHC"></td>
+          <td id="teleinfoPTEC"></td>
+          <td id="teleinfoADPS"></td>
+          <td id="teleinfoHHPHC"></td>
         </tr>
       </tbody> 
     </table>
