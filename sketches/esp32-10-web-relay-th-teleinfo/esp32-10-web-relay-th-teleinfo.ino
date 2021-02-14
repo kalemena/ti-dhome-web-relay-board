@@ -32,8 +32,8 @@ unsigned int relayState = 0;
 
 // Teleinfo
 #include <LibTeleinfo.h>
-HardwareSerial TeleInfo(2); // Teleinfo Serial UART1/Serial2 pins 16,17
-TInfo          tinfo;       // Teleinfo object
+HardwareSerial TeleInfo(2);  // Teleinfo Serial UART1/Serial2 pins 16,17
+TInfo          tinfo;        // Teleinfo object
 
 #define DEBUG true
 #define Serial if(DEBUG)Serial
@@ -63,7 +63,8 @@ void setup() {
   listDir(SPIFFS, "/", 3);
 
   // ===== Teleinfo
-  TeleInfo.begin(1200);
+  //TeleInfo.begin(1200);               // standard pins 16,17 
+  TeleInfo.begin(1200, SERIAL_8N1, 18); // custom pins 18,17
   tinfo.init();
   tinfo.attachADPS(ADPSCallback);
   tinfo.attachData(DataCallback);
@@ -524,7 +525,7 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                   
                 } else if(payloadStr.startsWith("relays/test")) {
                   operation_test();
-                  
+                
 #ifdef ENABLE_HTU21D                  
                 } else if(payloadStr.startsWith("sensors/th")) {
                   operation_read_TH();
