@@ -17,6 +17,10 @@
 WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
 
+// System
+String chipId;
+esp_chip_info_t chip_info;
+
 // HTU21
 #include <Wire.h>
 #include "Adafruit_HTU21DF.h"
@@ -50,6 +54,11 @@ void setup() {
   Serial.println();
   Serial.println("Initializing ...");
   Serial.println();
+
+  // System
+  chipId = String((uint32_t)ESP.getEfuseMac(), HEX);
+  chipId.toUpperCase();
+  esp_chip_info(&chip_info);
 
   // ===== File System
   delay(100);
@@ -283,23 +292,22 @@ void operation_test() {
 String render_status(String message) {
   String json = "{\n";
   json += " \"system\": {\n";
+  json += "   \"chip-model\": " + String(ESP.getChipModel()) + ",\n";
+  json += "   \"chip-revision\": " + String(ESP.getChipRevision()) + ",\n";
+  json += "   \"chip-cores\": " + String(ESP.getChipCores()) + ",\n";
+  String chipBL = String((chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "") + String((chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
+  json += "   \"chip-bluetooth\": \"" + chipBL + "\",\n";
+  json += "   \"chip-id\": " + String(chipId) + ",\n";
   json += "   \"heap\": " + String(ESP.getFreeHeap()) + ",\n";
-  // json += "   \"boot-version\": " + String(ESP.getBootVersion()) + ",\n";
-  // json += "   \"cpu-frequency\": " + String(system_get_cpu_freq()) + ",\n";
-  json += "   \"sdk\": \"" + String(system_get_sdk_version()) + "\"\n";
-  // json += "   \"chip-id\": " + String(system_get_chip_id()) + ",\n";
-  // json += "   \"flash-id\": " + String(spi_flash_get_id()) + ",\n";
-  // json += "   \"flash-size\": " + String(ESP.getFlashChipRealSize()) + ",\n";
-  // json += "   \"vcc\": " + String(ESP.getVcc()) + ",\n";
-  // json += "   \"gpio\": " + String((uint32_t)(((GPI | GPO) & 0xFFFF) | ((GP16I & 0x01) << 16))) + "\n";
-  json += "  },\n";
+  json += "   \"flash-size\": " + String(spi_flash_get_chip_size()/(1024*1024)) + ",\n";
+  json += "   \"flash-type\": \"" + String((chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embeded" : "external") + "\"\n";
+  json += " },\n";
 
   if(isHTU21Found) {
     json += render_TH() + ",\n";
   }
 
-  json += "  \"teleinfo\": ";
-  json += render_teleinfo() + ",\n";
+  json += " \"teleinfo\": " + render_teleinfo() + ",\n";
 
   json += render_relays_status();
   if(message != "") {
@@ -317,7 +325,7 @@ String render_TH() {
   String json = " \"sensors\": {\n";
   json += "   \"temperature\": " + String(lastTemperature) + ",\n";
   json += "   \"humidity\": " + String(lastHumidity) + "\n";
-  json += "  }";
+  json += " }";
   return json;
 }
 
@@ -538,7 +546,7 @@ String render_teleinfo() {
     }
   }
 
-  json += "\n  }";
+  json += "\n }";
   return json;
 }
 
