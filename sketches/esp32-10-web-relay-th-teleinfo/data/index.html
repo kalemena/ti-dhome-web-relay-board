@@ -44,6 +44,12 @@
             for(relay in eventBody.relays) {
               tableRelaysAdd(eventBody.relays[relay]);
             }
+
+            console.log('teleinfo: ', eventBody.teleinfo);
+            //for(var teleinfoKey in eventBody.teleinfo) {
+              //console.log('teleinfo: ', teleinfoKey, ' = ', eventBody.teleinfo[teleinfoKey]);
+              updateTeleinfo(eventBody.teleinfo);
+            //}
           } 
           
           if(eventName.startsWith("relay")) {
@@ -62,30 +68,7 @@
           }
 
           if(eventName.startsWith("sensors/teleinfo")) {
-            if(eventBody.IINST) {
-              document.getElementById("teleinfoIINST").innerHTML = (Number(eventBody.IINST) * 230) + " W"
-            }
-            if(eventBody.PAPP) {
-              document.getElementById("teleinfoPAPP").innerHTML = Number(eventBody.PAPP) + " W"
-            }
-            if(eventBody.HCHP) {
-              document.getElementById("teleinfoHCHP").innerHTML = (Number(eventBody.HCHP) / 1000) + " kWh"
-            }
-            if(eventBody.HCHC) {
-              document.getElementById("teleinfoHCHC").innerHTML = (Number(eventBody.HCHC) / 1000) + " kWh"
-            }
-            if(eventBody.PTEC) {
-              document.getElementById("teleinfoPTEC").innerHTML = eventBody.PTEC
-            }
-            if(eventBody.ADPS) {
-              document.getElementById("teleinfoADPS").innerHTML = eventBody.ADPS
-            }
-            if(eventBody.HHPHC) {
-              document.getElementById("teleinfoHHPHC").innerHTML = eventBody.HHPHC
-            }
-            if(eventBody.MOTDETAT) {
-              document.getElementById("teleinfoMOTDETAT").innerHTML = eventBody.MOTDETAT
-            }
+            updateTeleinfo(eventBody);
           }
         };
       }
@@ -93,6 +76,33 @@
       ws_connect();
 
       setInterval(readTH, 5000);
+
+      function updateTeleinfo(eventBody) {
+        if(eventBody.IINST) {
+          document.getElementById("teleinfoIINST").innerHTML = (Number(eventBody.IINST) * 230) + " W"
+        }
+        if(eventBody.PAPP) {
+          document.getElementById("teleinfoPAPP").innerHTML = Number(eventBody.PAPP) + " W"
+        }
+        if(eventBody.HCHP) {
+          document.getElementById("teleinfoHCHP").innerHTML = (Number(eventBody.HCHP) / 1000) + " kWh"
+        }
+        if(eventBody.HCHC) {
+          document.getElementById("teleinfoHCHC").innerHTML = (Number(eventBody.HCHC) / 1000) + " kWh"
+        }
+        if(eventBody.PTEC) {
+          document.getElementById("teleinfoPTEC").innerHTML = eventBody.PTEC
+        }
+        if(eventBody.ADPS) {
+          document.getElementById("teleinfoADPS").innerHTML = eventBody.ADPS
+        }
+        if(eventBody.HHPHC) {
+          document.getElementById("teleinfoHHPHC").innerHTML = eventBody.HHPHC
+        }
+        if(eventBody.MOTDETAT) {
+          document.getElementById("teleinfoMOTDETAT").innerHTML = eventBody.MOTDETAT
+        }
+      }
 
       function tableRelaysAdd(relay) {
         buttonImageFile = (relay.value == 0 ? "off.svg" : "on.svg")
