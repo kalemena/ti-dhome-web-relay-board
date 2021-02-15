@@ -18,13 +18,12 @@ WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
 
 // HTU21
-#ifdef ENABLE_HTU21D
 #include <Wire.h>
 #include "Adafruit_HTU21DF.h"
 Adafruit_HTU21DF htu = Adafruit_HTU21DF();
 float lastTemperature = 0.0;
 float lastHumidity = 0.0;
-#endif
+boolean isHTU21Found = false;
 
 // Relays
 // holds 16 bits
@@ -71,15 +70,21 @@ void setup() {
   tinfo.attachNewFrame(NewFrame);
   tinfo.attachUpdatedFrame(UpdatedFrame);
 
-#ifdef ENABLE_HTU21D
   // ===== HTU21D
   delay(100);
-  while(!htu.begin()) {
-    Serial.println("Couldn't find sensor ...");
-    delay(100);
+  int i = 0;
+  while(i < 3) {
+    i++;
+    if(!isHTU21Found) {
+      if(!htu.begin()) {
+        Serial.println("Couldn't find sensor ...");
+        delay(100);
+      } else {
+        isHTU21Found = true;
+        Serial.println("HTU21D Sensor found !");
+      }
+    }
   }
-  Serial.println("HTU21D Sensor found !");
-#endif
 
   // ===== Relays on 74HC595
   // Set pins to output so you can control the shift register
@@ -205,7 +210,6 @@ String getContentType(String filename){
 
 // ===== OPERATIONS
 
-#ifdef ENABLE_HTU21D
 void operation_read_TH() {
     lastTemperature = round(htu.readTemperature()*100)/100.0;
     lastHumidity = round(htu.readHumidity()*100)/100.0;
@@ -213,13 +217,11 @@ void operation_read_TH() {
 
     webSocket.broadcastTXT(String("sensors/th~{ \"t\": ") + String(lastTemperature) + String(", \"h\":") + String(lastHumidity) + String(" }"));
 }
-#endif
 
 /**
  * Value is anything between 0 to 65535 representing 16 bits of data I/Os
  */
-void operation_relay_set_internal(int value) 
-{
+void operation_relay_set_internal(int value) {
    // take the latchPin low so 
    // the LEDs don't change while you're sending in bits:
    digitalWrite(latchPin, LOW);
@@ -292,10 +294,12 @@ String render_status(String message) {
   // json += "   \"gpio\": " + String((uint32_t)(((GPI | GPO) & 0xFFFF) | ((GP16I & 0x01) << 16))) + "\n";
   json += "  },\n";
 
-#ifdef ENABLE_HTU21D
-  json += render_TH();
-  json += ",\n";
-#endif
+  if(isHTU21Found) {
+    json += render_TH() + ",\n";
+  }
+
+  json += "  \"teleinfo\": ";
+  json += render_teleinfo() + ",\n";
 
   json += render_relays_status();
   if(message != "") {
@@ -307,7 +311,6 @@ String render_status(String message) {
   return json;
 }
 
-#ifdef ENABLE_HTU21D
 String render_TH() {
   operation_read_TH();
   
@@ -317,7 +320,6 @@ String render_TH() {
   json += "  }";
   return json;
 }
-#endif
 
 String render_relays_status_body() {
   String json = "{\n";
@@ -485,6 +487,61 @@ void UpdatedFrame(ValueList * me) {
   Serial.println(F("FRAME -> UPDATED"));
 }
 
+/* ======================================================================
+Function: render_teleinfo 
+Purpose : dump teleinfo values as JSON
+Output  : JSON
+Comments: -
+====================================================================== */
+String render_teleinfo() {
+  bool firstdata = true;
+  ValueList * me = tinfo.getList();
+
+  String json = "{\n";
+  if (me) {
+    // Loop thru the node
+    while (me->next) {
+      // go to next node
+      me = me->next;
+
+      // First elemement, no comma
+      if (firstdata)
+        firstdata = false;
+      else
+        json += ",\n";
+
+      json += "    \"" + String(me->name) + "\": ";
+
+      // we have at least something ?
+      if (me->value && strlen(me->value)) {
+        boolean isNumber = true;
+        uint8_t c;
+        char * p = me->value;
+
+        // check if value is number
+        while (*p && isNumber) {
+          if ( *p < '0' || *p > '9' )
+            isNumber = false;
+          p++;
+        }
+
+        // this will add "" on not number values
+        if (!isNumber) {
+          json += "\"";
+          json += me->value;
+          json += "\"";
+        }
+        // this will remove leading zero on numbers
+        else
+          json += atol(me->value);
+      }
+    }
+  }
+
+  json += "\n  }";
+  return json;
+}
+
 // ===== WEBSOCKET
 
 void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
@@ -525,11 +582,9 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                   
                 } else if(payloadStr.startsWith("relays/test")) {
                   operation_test();
-                
-#ifdef ENABLE_HTU21D                  
-                } else if(payloadStr.startsWith("sensors/th")) {
+                 
+                } else if(isHTU21Found && payloadStr.startsWith("sensors/th")) {
                   operation_read_TH();
-#endif
                   
                 } else {
                   Serial.println("Unknown command");
