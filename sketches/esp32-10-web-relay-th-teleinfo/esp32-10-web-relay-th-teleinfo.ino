@@ -38,7 +38,7 @@ unsigned int relayState = 0;
 HardwareSerial TeleInfo(2);  // Teleinfo Serial UART1/Serial2 pins 16,17
 TInfo          tinfo;        // Teleinfo object
 
-#define DEBUG true
+#define DEBUG false
 #define Serial if(DEBUG)Serial
 
 // ===== CONFIGURATION
@@ -55,13 +55,16 @@ void setup() {
   Serial.println("Initializing ...");
   Serial.println();
 
-  // System
+  delay(100);
+
+  // ===== System
   chipId = String((uint32_t)ESP.getEfuseMac(), HEX);
   chipId.toUpperCase();
   esp_chip_info(&chip_info);
 
-  // ===== File System
   delay(100);
+
+  // ===== File System
   if(!SPIFFS.begin(false)){
     Serial.println("SPIFFS Mount Failed");
     return;
@@ -69,6 +72,8 @@ void setup() {
     Serial.println("SPIFFS Mount OK");
   }
   listDir(SPIFFS, "/", 3);
+
+  delay(100);
 
   // ===== Teleinfo
   //TeleInfo.begin(1200);               // standard pins 16,17 
@@ -79,8 +84,9 @@ void setup() {
   tinfo.attachNewFrame(NewFrame);
   tinfo.attachUpdatedFrame(UpdatedFrame);
 
-  // ===== HTU21D
   delay(100);
+
+  // ===== HTU21D
   int i = 0;
   while(i < 3) {
     i++;
@@ -95,6 +101,8 @@ void setup() {
     }
   }
 
+  delay(100);
+
   // ===== Relays on 74HC595
   // Set pins to output so you can control the shift register
   pinMode(latchPin, OUTPUT);
@@ -103,8 +111,9 @@ void setup() {
   // reset to 0
   operation_relay_set_internal(0);
 
+  delay(100);
+
   // ===== WiFi
-  delay(10);
   Serial.println("===========");
   Serial.printf("Connecting to %s\n", ssid);
   WiFi.begin(ssid, password);
@@ -283,6 +292,17 @@ void operation_test() {
     operation_relay_set(switchId, -1); 
     delay(pause);
     operation_relay_set(switchId, -1);
+    delay(pause);
+  }
+}
+
+/**
+ * Reset all the relays to zero
+ */
+void operation_reset() {
+  int pause = 500;  
+  for (int switchId = 15; switchId >= 0; switchId--) {
+    operation_relay_set(switchId, 0); 
     delay(pause);
   }
 }
@@ -590,6 +610,9 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                   
                 } else if(payloadStr.startsWith("relays/test")) {
                   operation_test();
+
+                } else if(payloadStr.startsWith("relays/reset")) {
+                  operation_reset();
                  
                 } else if(isHTU21Found && payloadStr.startsWith("sensors/th")) {
                   operation_read_TH();

@@ -63,8 +63,7 @@
           }
 
           if(eventName.startsWith("sensors/th")) {
-            document.getElementById("sensorsT").innerHTML = eventBody.t + " °C"
-            document.getElementById("sensorsH").innerHTML = eventBody.h + " %"
+            document.getElementById("sensorsTH").innerHTML = eventBody.t + " °C<br/>" + eventBody.h + " %"
           }
 
           if(eventName.startsWith("sensors/teleinfo")) {
@@ -78,30 +77,27 @@
       setInterval(readTH, 5000);
 
       function updateTeleinfo(eventBody) {
-        if(eventBody.IINST) {
-          document.getElementById("teleinfoIINST").innerHTML = (Number(eventBody.IINST) * 230) + " W"
-        }
+        // if(eventBody.IINST) {
+        //   document.getElementById("teleinfoIINST").innerHTML = (Number(eventBody.IINST) * 230) + " W"
+        // }
         if(eventBody.PAPP) {
           document.getElementById("teleinfoPAPP").innerHTML = Number(eventBody.PAPP) + " W"
         }
         if(eventBody.HCHP) {
-          document.getElementById("teleinfoHCHP").innerHTML = (Number(eventBody.HCHP) / 1000) + " kWh"
+          document.getElementById("teleinfoHCHP").innerHTML = "HP : " + (Number(eventBody.HCHP) / 1000) + " kWh"
         }
         if(eventBody.HCHC) {
-          document.getElementById("teleinfoHCHC").innerHTML = (Number(eventBody.HCHC) / 1000) + " kWh"
+          document.getElementById("teleinfoHCHC").innerHTML = "HC : " + (Number(eventBody.HCHC) / 1000) + " kWh"
         }
         if(eventBody.PTEC) {
           document.getElementById("teleinfoPTEC").innerHTML = eventBody.PTEC
         }
-        if(eventBody.ADPS) {
-          document.getElementById("teleinfoADPS").innerHTML = eventBody.ADPS
-        }
-        if(eventBody.HHPHC) {
-          document.getElementById("teleinfoHHPHC").innerHTML = eventBody.HHPHC
-        }
-        if(eventBody.MOTDETAT) {
-          document.getElementById("teleinfoMOTDETAT").innerHTML = eventBody.MOTDETAT
-        }
+        // if(eventBody.ADPS) {
+        //   document.getElementById("teleinfoADPS").innerHTML = eventBody.ADPS
+        // }
+        // if(eventBody.HHPHC) {
+        //   document.getElementById("teleinfoHHPHC").innerHTML = eventBody.HHPHC
+        // }
       }
 
       function tableRelaysAdd(relay) {
@@ -123,6 +119,11 @@
         ws.send('relays/set?' + id + "=-1");
       }
 
+      function relayReset() {
+        console.log('Relay Reset:');
+        ws.send('relays/reset');
+      }
+
       function relayTest() {
         console.log('Relay Test:');
         ws.send('relays/test');
@@ -138,42 +139,26 @@
     <table id="tableGlobal">
       <thead>
         <tr>
-          <th>Test</th>
-          <th>Temperature</th>
-          <th>Humidity</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><button id="test" onclick="relayTest()">Relay Test</button></td>
-          <td id="sensorsT"></td>
-          <td id="sensorsH"></td>
-        </tr>
-      </tbody> 
-    </table>
-    <table id="tableTeleinfo">
-      <thead>
-        <tr>
-          <th>Power (I)</th>
-          <th>Power (P)</th>
-          <th>Cpt H.P.</th>
-          <th>Cpt H.C.</th>
+          <th>Control</th>
+          <th>Temp/Humi</th>
+          <!-- <th>Power (I)</th> -->
+          <th>Puissance</th>
+          <th>Compteurs</th>
           <th>Periode</th>
-          <th>Alert</th>
-          <th>Groupe Horaire</th>
-          <th>Mode Etat</th>
+          <!-- <th>Alert</th> -->
+          <!-- <th>Groupe Horaire</th> -->
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td id="teleinfoIINST"></td>
+          <td><button id="test" onclick="relayTest()">Test</button><br/><button id="reset" onclick="relayReset()">Reset</button></td>
+          <td id="sensorsTH"></td>
+          <!-- <td id="teleinfoIINST"></td> -->
           <td id="teleinfoPAPP"></td>
-          <td id="teleinfoHCHP"></td>
-          <td id="teleinfoHCHC"></td>
+          <td><div id="teleinfoHCHP"></div><br/><div id="teleinfoHCHC"></div></td>          
           <td id="teleinfoPTEC"></td>
-          <td id="teleinfoADPS"></td>
-          <td id="teleinfoHHPHC"></td>
-          <td id="teleinfoMOTDETAT"></td>
+          <!-- <td id="teleinfoADPS"></td> -->
+          <!-- <td id="teleinfoHHPHC"></td> -->
         </tr>
       </tbody> 
     </table>
