@@ -292,12 +292,12 @@ void operation_test() {
 String render_status(String message) {
   String json = "{\n";
   json += " \"system\": {\n";
-  json += "   \"chip-model\": " + String(ESP.getChipModel()) + ",\n";
+  json += "   \"chip-model\": \"" + String(ESP.getChipModel()) + "\",\n";
   json += "   \"chip-revision\": " + String(ESP.getChipRevision()) + ",\n";
   json += "   \"chip-cores\": " + String(ESP.getChipCores()) + ",\n";
   String chipBL = String((chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "") + String((chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
   json += "   \"chip-bluetooth\": \"" + chipBL + "\",\n";
-  json += "   \"chip-id\": " + String(chipId) + ",\n";
+  json += "   \"chip-id\": \"" + String(chipId) + "\",\n";
   json += "   \"heap\": " + String(ESP.getFreeHeap()) + ",\n";
   json += "   \"flash-size\": " + String(spi_flash_get_chip_size()/(1024*1024)) + ",\n";
   json += "   \"flash-type\": \"" + String((chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embeded" : "external") + "\"\n";
