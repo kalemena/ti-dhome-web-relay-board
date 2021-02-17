@@ -9,6 +9,7 @@
 #include <Arduino.h>
 #include "FS.h"
 #include "SPIFFS.h"
+#include "time.h"
 
 #include <ESPmDNS.h>
 #include <WiFi.h>
@@ -61,6 +62,9 @@ void setup() {
   chipId = String((uint32_t)ESP.getEfuseMac(), HEX);
   chipId.toUpperCase();
   esp_chip_info(&chip_info);
+
+  //init and get the time
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
   delay(100);
 
@@ -320,7 +324,8 @@ String render_status(String message) {
   json += "   \"chip-id\": \"" + String(chipId) + "\",\n";
   json += "   \"heap\": " + String(ESP.getFreeHeap()) + ",\n";
   json += "   \"flash-size\": " + String(spi_flash_get_chip_size()/(1024*1024)) + ",\n";
-  json += "   \"flash-type\": \"" + String((chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embeded" : "external") + "\"\n";
+  json += "   \"flash-type\": \"" + String((chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embeded" : "external") + "\",\n";
+  json += "   \"time\": \"" + renderLocalTime() + "\"\n";
   json += " },\n";
 
   if(isHTU21Found) {
@@ -337,6 +342,19 @@ String render_status(String message) {
   }
   json += "}\n";
   return json;
+}
+
+String renderLocalTime() {
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)){
+    Serial.println("Failed to obtain time");
+    return "";
+  }
+
+  char timeStringBuff[50];
+  strftime (timeStringBuff, 50,"%Y-%m-%dT%H:%M:%SZ", &timeinfo);
+  String asString(timeStringBuff);
+  return asString;
 }
 
 String render_TH() {
