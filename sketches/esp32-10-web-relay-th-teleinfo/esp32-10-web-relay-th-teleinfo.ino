@@ -21,6 +21,7 @@ WebSocketsServer webSocket = WebSocketsServer(81);
 // System
 String chipId;
 esp_chip_info_t chip_info;
+unsigned long epochTime; 
 
 // HTU21
 #include <Wire.h>
@@ -232,14 +233,6 @@ String getContentType(String filename){
 
 // ===== OPERATIONS
 
-void operation_read_TH() {
-    lastTemperature = round(htu.readTemperature()*100)/100.0;
-    lastHumidity = round(htu.readHumidity()*100)/100.0;
-    Serial.printf("Temp=%.2f C° / Humidity=%.2f \%\n", lastTemperature, lastHumidity);
-
-    webSocket.broadcastTXT(String("sensors/th~{ \"t\": ") + String(lastTemperature) + String(", \"h\":") + String(lastHumidity) + String(" }"));
-}
-
 /**
  * Value is anything between 0 to 65535 representing 16 bits of data I/Os
  */
@@ -325,7 +318,7 @@ String render_status(String message) {
   json += "   \"heap\": " + String(ESP.getFreeHeap()) + ",\n";
   json += "   \"flash-size\": " + String(spi_flash_get_chip_size()/(1024*1024)) + ",\n";
   json += "   \"flash-type\": \"" + String((chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embeded" : "external") + "\",\n";
-  json += "   \"time\": \"" + renderLocalTime() + "\"\n";
+  json += "   \"time-iso\": \"" + renderLocalTime() + "\"\n";
   json += " },\n";
 
   if(isHTU21Found) {
@@ -344,6 +337,17 @@ String render_status(String message) {
   return json;
 }
 
+unsigned long getTime() {
+  time_t now;
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    //Serial.println("Failed to obtain time");
+    return(0);
+  }
+  time(&now);
+  return now;
+}
+
 String renderLocalTime() {
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
@@ -358,7 +362,9 @@ String renderLocalTime() {
 }
 
 String render_TH() {
-  operation_read_TH();
+  lastTemperature = round(htu.readTemperature()*100)/100.0;
+  lastHumidity = round(htu.readHumidity()*100)/100.0;
+  Serial.printf("Temp=%.2f C° / Humidity=%.2f \%\n", lastTemperature, lastHumidity);
   
   String json = " \"sensors\": {\n";
   json += "   \"temperature\": " + String(lastTemperature) + ",\n";
@@ -613,7 +619,7 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                 Serial.printf("[%u] get Text: %s\n", num, payload);
 
                 String payloadStr = String((const char *)payload);
-                if(payloadStr.startsWith("/status")) {
+                if(payloadStr.startsWith("status")) {
                   String json = render_status("");
                   webSocket.sendTXT(num, String("status~") + json);
                   json = String();
@@ -631,9 +637,22 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
 
                 } else if(payloadStr.startsWith("relays/reset")) {
                   operation_reset();
+
+                } else if(payloadStr.startsWith("system")) {
+                  epochTime = getTime();
+                  char buf[32];
+                  sprintf(buf, "%d", epochTime);
+                  Serial.println("Epoch Time: " + String(buf));
+                                    
+                  // String timeStr = renderLocalTime();
+                  // Serial.println("Time=" + timeStr + "\"");
+                  webSocket.sendTXT(num, String("system~{ \"time\": ") + String(buf) + String(" }"));
                  
                 } else if(isHTU21Found && payloadStr.startsWith("sensors/th")) {
-                  operation_read_TH();
+                  lastTemperature = round(htu.readTemperature()*100)/100.0;
+                  lastHumidity = round(htu.readHumidity()*100)/100.0;
+                  Serial.printf("Temp=%.2f C° / Humidity=%.2f \%\n", lastTemperature, lastHumidity);
+                  webSocket.sendTXT(num, String("sensors/th~{ \"t\": ") + String(lastTemperature) + String(", \"h\":") + String(lastHumidity) + String(" }"));
                   
                 } else {
                   Serial.println("Unknown command");

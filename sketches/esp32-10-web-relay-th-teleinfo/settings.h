@@ -3,6 +3,11 @@ const char *ssid = "<ssid>";
 const char *password = "<password>";
 const char* host = "ioteleinfo";
 
+// NTP
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 0;
+const int   daylightOffset_sec = 0;
+
 //// PINS (74HC595) - ESP8266
 //int latchPin = 15;
 //int clockPin = 12;
