@@ -1,0 +1,24 @@
+:toc:
+
+== 9 - ESP 32
+
+Switching to ESP32 with same form factor as Wemos D1 mini.
+
+image:https://github.com/kalemena/iot-tools/raw/master/boards/esp32-pins.png[ESP 32 pins]
+
+Main differences with Wemos ESP8266:
+
+* Pins are slightly different, but can fit previously created PCB without soldering
+* ESP32 system info
+* Wifi and WebServer libs don't allow same port WebSocket
+* SoftwareSerial is replaced with HardwareSerial
+* Web UI is enhanced to allow continuous update of power and temperature sensor
+
+Complete sources:
+
+* link:/sketches/esp32-10-web-relay-th-teleinfo/esp32-10-web-relay-th-teleinfo.ino[Sketch]
+* link:/sketches/esp32-10-web-relay-th-teleinfo/data/index.html[Web UI]
+
+== References
+
+* link:https://github.com/hallard/LibTeleinfo/blob/master/examples/Wifinfo/Wifinfo.ino[Hallard LibTeleinfo]
