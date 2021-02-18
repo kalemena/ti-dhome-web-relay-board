@@ -35,8 +35,8 @@
           var eventName = eventData[0];
           var eventBody = JSON.parse(eventData[1]);
 
-          // console.log('eventName: ', eventName);
-          // console.log('eventBody: ', eventBody);
+          //console.log('eventName: ', eventName);
+          //console.log('eventBody: ', eventBody);
           
           if(eventName === "status") {
             $("#tableRelays tbody").children().remove()
@@ -69,12 +69,22 @@
           if(eventName.startsWith("sensors/teleinfo")) {
             updateTeleinfo(eventBody);
           }
+
+          if(eventName.startsWith("system")) {
+            if(eventBody.time) {
+              var theDate = new Date( Number(eventBody.time) *1000);
+              // theDate.toGMTString()
+              // theDate.toLocaleString())
+              document.getElementById("systemTime").innerHTML = theDate.toLocaleString()
+            }
+          }
         };
       }
 
       ws_connect();
 
-      setInterval(readTH, 5000);
+      setInterval(readTH, 10 * 1000);
+      setInterval(readTime, 60 * 1000);
 
       function updateTeleinfo(eventBody) {
         // if(eventBody.IINST) {
@@ -115,24 +125,30 @@
       }
       
       function relaySwitch(id) {
-        console.log('Relay: ' + id);
+        console.log('GET relays/set?' + id);
         ws.send('relays/set?' + id + "=-1");
       }
 
       function relayReset() {
-        console.log('Relay Reset:');
+        console.log('GET relays/reset');
         ws.send('relays/reset');
       }
 
       function relayTest() {
-        console.log('Relay Test:');
+        console.log('GET relays/test');
         ws.send('relays/test');
       }
 
       function readTH() {
-        console.log('Sensor:');
+        console.log('GET sensors/th');
         ws.send('sensors/th');
       }
+
+      function readTime() {
+        console.log('GET system/time');
+        ws.send('system/time');
+      }
+      
     </script>
   </head>
   <body>
@@ -147,6 +163,7 @@
           <th>Periode</th>
           <!-- <th>Alert</th> -->
           <!-- <th>Groupe Horaire</th> -->
+          <th>Time</th>
         </tr>
       </thead>
       <tbody>
@@ -159,6 +176,7 @@
           <td id="teleinfoPTEC"></td>
           <!-- <td id="teleinfoADPS"></td> -->
           <!-- <td id="teleinfoHHPHC"></td> -->
+          <td id="systemTime"></td>
         </tr>
       </tbody> 
     </table>
