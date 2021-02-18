@@ -22,3 +22,4 @@ Complete sources:
 == References
 
 * link:https://github.com/hallard/LibTeleinfo/blob/master/examples/Wifinfo/Wifinfo.ino[Hallard LibTeleinfo]
+* link:https://arduinojson.org/v6/assistant/[JSON Assistant]
