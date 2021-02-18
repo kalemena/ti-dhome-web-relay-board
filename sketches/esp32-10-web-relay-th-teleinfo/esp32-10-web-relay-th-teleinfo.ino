@@ -231,6 +231,30 @@ String getContentType(String filename){
   return "text/plain";
 }
 
+unsigned long getTime() {
+  time_t now;
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    //Serial.println("Failed to obtain time");
+    return(0);
+  }
+  time(&now);
+  return now;
+}
+
+String renderLocalTime() {
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)){
+    Serial.println("Failed to obtain time");
+    return "";
+  }
+
+  char timeStringBuff[50];
+  strftime (timeStringBuff, 50,"%Y-%m-%dT%H:%M:%SZ", &timeinfo);
+  String asString(timeStringBuff);
+  return asString;
+}
+
 // ===== OPERATIONS
 
 /**
@@ -304,7 +328,11 @@ void operation_reset() {
   }
 }
 
-// ===== CONTROLLERS
+void operation_th() {
+  lastTemperature = round(htu.readTemperature()*100)/100.0;
+  lastHumidity = round(htu.readHumidity()*100)/100.0;
+  Serial.printf("Temp=%.2f C° / Humidity=%.2f \%\n", lastTemperature, lastHumidity);
+}
 
 String render_status(String message) {
   String json = "{\n";
@@ -649,9 +677,7 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                   webSocket.sendTXT(num, String("system~{ \"time\": ") + String(buf) + String(" }"));
                  
                 } else if(isHTU21Found && payloadStr.startsWith("sensors/th")) {
-                  lastTemperature = round(htu.readTemperature()*100)/100.0;
-                  lastHumidity = round(htu.readHumidity()*100)/100.0;
-                  Serial.printf("Temp=%.2f C° / Humidity=%.2f \%\n", lastTemperature, lastHumidity);
+                  operation_th();
                   webSocket.sendTXT(num, String("sensors/th~{ \"t\": ") + String(lastTemperature) + String(", \"h\":") + String(lastHumidity) + String(" }"));
                   
                 } else {
