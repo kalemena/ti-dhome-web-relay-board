@@ -358,14 +358,18 @@ void json_sensors(JsonObject sensors) {
   sensors["humidity"] = lastHumidity;
 }
 
+void json_relay(JsonObject relay, int switchId) {
+  int thisRelayState = (relayState >> switchId) & 1;
+  
+  relay["description"] = sensors[switchId];
+  relay["id"] = switchId;
+  relay["value"] = thisRelayState;
+}
+
 void json_relays(JsonArray relays) {
   for (int switchId = 0; switchId < 16; switchId++) {
-    int thisRelayState = (relayState >> switchId) & 1;
-
     JsonObject relay = relays.createNestedObject();
-    relay["description"] = sensors[switchId];
-    relay["id"] = switchId;
-    relay["value"] = thisRelayState;
+    json_relay(relay, switchId);
   }
 }
 
