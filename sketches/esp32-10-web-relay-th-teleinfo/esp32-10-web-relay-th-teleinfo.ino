@@ -9,7 +9,10 @@
 #include <Arduino.h>
 #include "FS.h"
 #include "SPIFFS.h"
+
 #include "time.h"
+
+#include <ArduinoJson.h>
 
 #include <ESPmDNS.h>
 #include <WiFi.h>
@@ -334,92 +337,66 @@ void operation_th() {
   Serial.printf("Temp=%.2f C° / Humidity=%.2f \%\n", lastTemperature, lastHumidity);
 }
 
-String render_status(String message) {
-  String json = "{\n";
-  json += " \"system\": {\n";
-  json += "   \"chip-model\": \"" + String(ESP.getChipModel()) + "\",\n";
-  json += "   \"chip-revision\": " + String(ESP.getChipRevision()) + ",\n";
-  json += "   \"chip-cores\": " + String(ESP.getChipCores()) + ",\n";
+// ===== JSON
+
+void json_system(JsonObject system) {
+  system["chip-model"] = ESP.getChipModel();
+  system["chip-revision"] = ESP.getChipRevision();
+  system["chip-cores"] = ESP.getChipCores();
   String chipBL = String((chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "") + String((chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
-  json += "   \"chip-bluetooth\": \"" + chipBL + "\",\n";
-  json += "   \"chip-id\": \"" + String(chipId) + "\",\n";
-  json += "   \"heap\": " + String(ESP.getFreeHeap()) + ",\n";
-  json += "   \"flash-size\": " + String(spi_flash_get_chip_size()/(1024*1024)) + ",\n";
-  json += "   \"flash-type\": \"" + String((chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embeded" : "external") + "\",\n";
-  json += "   \"time-iso\": \"" + renderLocalTime() + "\"\n";
-  json += " },\n";
-
-  if(isHTU21Found) {
-    json += render_TH() + ",\n";
-  }
-
-  json += " \"teleinfo\": " + render_teleinfo() + ",\n";
-
-  json += render_relays_status();
-  if(message != "") {
-    json += ",\n \"message\": \"" + message + "\"\n";
-  } else {
-    json += "\n";
-  }
-  json += "}\n";
-  return json;
+  system["chip-bluetooth"] = chipBL;
+  system["chip-id"] = chipId;
+  system["heap"] = ESP.getFreeHeap();
+  system["flash-size"] = spi_flash_get_chip_size()/(1024*1024);
+  system["flash-type"] = String((chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embeded" : "external");
+  system["time-iso"] = renderLocalTime();
 }
 
-unsigned long getTime() {
-  time_t now;
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    //Serial.println("Failed to obtain time");
-    return(0);
-  }
-  time(&now);
-  return now;
+void json_sensors(JsonObject sensors) {
+  operation_th();
+  sensors["temperature"] = lastTemperature;
+  sensors["humidity"] = lastHumidity;
 }
 
-String renderLocalTime() {
-  struct tm timeinfo;
-  if(!getLocalTime(&timeinfo)){
-    Serial.println("Failed to obtain time");
-    return "";
-  }
-
-  char timeStringBuff[50];
-  strftime (timeStringBuff, 50,"%Y-%m-%dT%H:%M:%SZ", &timeinfo);
-  String asString(timeStringBuff);
-  return asString;
-}
-
-String render_TH() {
-  lastTemperature = round(htu.readTemperature()*100)/100.0;
-  lastHumidity = round(htu.readHumidity()*100)/100.0;
-  Serial.printf("Temp=%.2f C° / Humidity=%.2f \%\n", lastTemperature, lastHumidity);
-  
-  String json = " \"sensors\": {\n";
-  json += "   \"temperature\": " + String(lastTemperature) + ",\n";
-  json += "   \"humidity\": " + String(lastHumidity) + "\n";
-  json += " }";
-  return json;
-}
-
-String render_relays_status_body() {
-  String json = "{\n";
-  json += render_relays_status() + "\n";
-  json += "}\n";
-  return json;
-}
-
-String render_relays_status() {
-  String json = " \"relays\": [\n";
+void json_relays(JsonArray relays) {
   for (int switchId = 0; switchId < 16; switchId++) {
     int thisRelayState = (relayState >> switchId) & 1;
-    json += "    { \"description\": \"" + String(sensors[switchId]) + "\", \"id\": " + String(switchId) + ", \"value\":" + String(thisRelayState) + " }";
-    if(switchId < 15)
-      json += ",";
-    json += "\n";
+
+    JsonObject relay = relays.createNestedObject();
+    relay["description"] = sensors[switchId];
+    relay["id"] = switchId;
+    relay["value"] = thisRelayState;
   }
-  json += "  ]";
+}
+
+String json_status(String message) {
+
+  StaticJsonDocument<2048> doc;
+
+  JsonObject system = doc.createNestedObject("system");
+  json_system(system);
+  
+  if(isHTU21Found) {
+    JsonObject sensors = doc.createNestedObject("sensors");
+    json_sensors(sensors);
+  }
+
+  JsonArray relays = doc.createNestedArray("relays");
+  json_relays(relays);
+
+  JsonObject teleinfo = doc.createNestedObject("teleinfo");
+  json_teleinfo(teleinfo);
+
+  if(message != "") {
+    doc["message"] = message;
+  }
+  
+  String json;
+  serializeJson(doc, json);
   return json;
 }
+
+// ===== CONTROLLERS
 
 void controller_handleNotFound() {
   if(!controller_file_read(server.uri()))
@@ -443,7 +420,7 @@ bool controller_file_read(String path){
 }
 
 void controller_status() {
-  String json = render_status("status");
+  String json = json_status("status");
   server.send(200, "application/json", json);
   json = String();
 }
@@ -573,24 +550,14 @@ Purpose : dump teleinfo values as JSON
 Output  : JSON
 Comments: -
 ====================================================================== */
-String render_teleinfo() {
-  bool firstdata = true;
+void json_teleinfo(JsonObject teleinfo) {
   ValueList * me = tinfo.getList();
 
-  String json = "{\n";
   if (me) {
     // Loop thru the node
     while (me->next) {
       // go to next node
       me = me->next;
-
-      // First elemement, no comma
-      if (firstdata)
-        firstdata = false;
-      else
-        json += ",\n";
-
-      json += "    \"" + String(me->name) + "\": ";
 
       // we have at least something ?
       if (me->value && strlen(me->value)) {
@@ -607,19 +574,14 @@ String render_teleinfo() {
 
         // this will add "" on not number values
         if (!isNumber) {
-          json += "\"";
-          json += me->value;
-          json += "\"";
+          teleinfo[me->name] = me->value;
         }
         // this will remove leading zero on numbers
         else
-          json += atol(me->value);
+          teleinfo[me->name] = atol(me->value);
       }
     }
   }
-
-  json += "\n }";
-  return json;
 }
 
 // ===== WEBSOCKET
@@ -637,7 +599,7 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
 
                 // send message to client
                 // webSocket.sendTXT(num, "Connected");
-                String json = render_status("");
+                String json = json_status("");
                 webSocket.sendTXT(num, String("status~") + json);
                 json = String();
             }
@@ -648,7 +610,7 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
 
                 String payloadStr = String((const char *)payload);
                 if(payloadStr.startsWith("status")) {
-                  String json = render_status("");
+                  String json = json_status("");
                   webSocket.sendTXT(num, String("status~") + json);
                   json = String();
                   
