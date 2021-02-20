@@ -302,8 +302,7 @@ int operation_relay_set(int relayNb, int relayStateWanted) {
   Serial.println("Relays = " + String(relayState));  
   operation_relay_set_internal(relayState);
 
-  webSocket.broadcastTXT(String("relay~{ \"id\": ") + relayNb + String(", \"value\":") + String(relayStateResponse) + String(" }"));
-
+  websocket_broadcast_relay(relayNb, relayStateResponse);
   return relayStateResponse;
 }
 
@@ -450,6 +449,7 @@ void controller_relay_set() {
   String json = "{\n";
   json += "  \"id\": " + String(relayNb) + ", \"value\": " + String(relayState) + "\n";
   json += "}";
+  
   server.send(200, "text/plain", json);
 }
 
@@ -518,7 +518,7 @@ void DataCallback(ValueList * me, uint8_t  flags) {
   Serial.print("=");
   Serial.println(me->value);
 
-  webSocket.broadcastTXT(String("sensors/teleinfo~{ \"") + String(me->name) + String("\": \"") + String(me->value) + String("\" }"));
+  websocket_broadcast_teleinfo(String(me->name), String(me->value));
 }
 
 /* ======================================================================
@@ -590,6 +590,29 @@ void json_teleinfo(JsonObject teleinfo) {
 
 // ===== WEBSOCKET
 
+void websocket_broadcast_relay(int relayNb, int relayStateResponse) {
+    StaticJsonDocument<2048> doc;
+    JsonArray relays = doc.createNestedArray("relays");
+
+    JsonObject relay = relays.createNestedObject();
+    relay["id"] = relayNb;
+    relay["value"] = relayStateResponse;
+    String json;
+    serializeJson(doc, json);
+    
+    webSocket.broadcastTXT(json);
+}
+
+void websocket_broadcast_teleinfo(String key, String value) {
+    StaticJsonDocument<2048> doc;
+    JsonObject teleinfo = doc.createNestedObject("teleinfo");
+    teleinfo[key] = value;
+    String json;
+    serializeJson(doc, json);
+    
+    webSocket.broadcastTXT(json);
+}
+
 void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
 
     switch(type) {
@@ -604,7 +627,7 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                 // send message to client
                 // webSocket.sendTXT(num, "Connected");
                 String json = json_status("");
-                webSocket.sendTXT(num, String("status~") + json);
+                webSocket.sendTXT(num, json);
                 json = String();
             }
             break;
@@ -615,7 +638,7 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                 String payloadStr = String((const char *)payload);
                 if(payloadStr.startsWith("status")) {
                   String json = json_status("");
-                  webSocket.sendTXT(num, String("status~") + json);
+                  webSocket.sendTXT(num, json);
                   json = String();
                   
                 } else if(payloadStr.startsWith("relays/set?")) {
@@ -637,14 +660,25 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                   char buf[32];
                   sprintf(buf, "%d", epochTime);
                   Serial.println("Epoch Time: " + String(buf));
-                                    
-                  // String timeStr = renderLocalTime();
-                  // Serial.println("Time=" + timeStr + "\"");
-                  webSocket.sendTXT(num, String("system~{ \"time\": ") + String(buf) + String(" }"));
+
+                  StaticJsonDocument<2048> doc;
+                  JsonObject system = doc.createNestedObject("system");
+                  system["time"] = String(buf);
+                  String json;
+                  serializeJson(doc, json);
+                  webSocket.sendTXT(num, json);
                  
-                } else if(isHTU21Found && payloadStr.startsWith("sensors/th")) {
+                } else if(isHTU21Found && payloadStr.startsWith("sensors")) {
                   operation_th();
-                  webSocket.sendTXT(num, String("sensors/th~{ \"t\": ") + String(lastTemperature) + String(", \"h\":") + String(lastHumidity) + String(" }"));
+
+                  StaticJsonDocument<2048> doc;
+                  if(isHTU21Found) {
+                    JsonObject sensors = doc.createNestedObject("sensors");
+                    json_sensors(sensors);
+                  }
+                  String json;
+                  serializeJson(doc, json);
+                  webSocket.sendTXT(num, json);
                   
                 } else {
                   Serial.println("Unknown command");
