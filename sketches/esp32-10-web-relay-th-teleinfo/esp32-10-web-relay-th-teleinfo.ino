@@ -346,7 +346,7 @@ void json_system(JsonObject system) {
   system["chip-bluetooth"] = chipBL;
   system["chip-id"] = chipId;
   system["heap"] = ESP.getFreeHeap();
-  system["flash-size"] = spi_flash_get_chip_size()/(1024*1024);
+  system["flash-size"] = spi_flash_get_chip_size()/1024;
   system["flash-type"] = String((chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embeded" : "external");
   system["time-iso"] = renderLocalTime();
 }
@@ -664,6 +664,7 @@ void websocket_event(uint8_t num, WStype_t type, uint8_t * payload, size_t lengt
                   StaticJsonDocument<2048> doc;
                   JsonObject system = doc.createNestedObject("system");
                   system["time"] = String(buf);
+                  system["heap"] = ESP.getFreeHeap();
                   String json;
                   serializeJson(doc, json);
                   webSocket.sendTXT(num, json);
