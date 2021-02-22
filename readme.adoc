@@ -1,20 +1,19 @@
-
+= Web Relay Board
 :toc:
+:hardbreaks:
 
 ifdef::env-github[]
 :imagesdir: /
 endif::[]
 
-= Web Relay Board
-
 == Description
 
-This project is an Open Source / Open Hardware minimalis approach for a Web Relay Board. +
+This project is an Open Source / Open Hardware minimal approach for a Web Relay Board.
 This Web Relay Board allows to connect 16 devices allowing to switch on/off Main Power.
 
 WARNING: Caution with 230v. Do not use high current.
 
-The Web Relay board uses HTTP/REST API as interface. +
+The Web Relay board uses HTTP/REST API as interface.
 Additionaly, simple Web UI is implemented on top of the REST API.
 
 In practice, the Web Relay is used to manage electric heaters with data wire named link:http://www.planete-domotique.com/blog/2012/01/05/piloter-un-radiateur-grace-a-son-fil-pilote/[fil pilote] which is 230v at very low current.
