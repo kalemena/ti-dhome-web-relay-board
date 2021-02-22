@@ -18,4 +18,7 @@ Complete sources:
 
 == References
 
+.Teleinfo
+image:/res/ordre_fil_pilote.jpg[Teleinfo]
+
 * link:https://github.com/hallard/LibTeleinfo/blob/master/examples/Wifinfo/Wifinfo.ino[Hallard LibTeleinfo]
