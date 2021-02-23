@@ -1,6 +1,13 @@
 :toc:
 :hardbreaks:
 
+[TIP]
+====
+REST API and websocket API are returning same JSON structure data.
+
+Additionaly, websocket will periodically push changing info such as other user relay switch, Téléinfo and temperature.
+====
+
 == API
 
 Below is API description with examples:
@@ -13,35 +20,72 @@ image:res/web-interface.png[Web Relays UI]
 
 === GET /status
 
-    $ curl -X GET http://192.168.1.56/status
+[source, json]
+----
+$ curl http://ioteleinfo.local/status | jq .
+
+{
+  "system": {
+    "chip-model": "ESP32-D0WDQ6",
+    "chip-revision": 1,
+    "chip-cores": 2,
+    "chip-bluetooth": "/BT/BLE",
+    "chip-id": "ABCDEFGH",
+    "heap": 256412,
+    "flash-size": 4,
+    "flash-type": "external",
+    "time-iso": "2021-02-06T11:44:37Z"
+  },
+  "sensors": {
+    "temperature": 13.12,
+    "humidity": 62.5
+  },
+  "relays": [
     {
-    "system": {
-    "heap": 42896,
-    "boot-version": 31,
-    "cpu-frequency": 80,
-    "sdk": "2.2.2-dev(38a443e)",
-    "chip-id": 286753,
-    "flash-id": 1458415,
-    "flash-size": 4194304,
-    "vcc": 65535,
-    "gpio": 114693
+      "description": "Ch. Jeux",
+      "id": 0,
+      "value": 0
     },
-    "relays": [
-        { "description": "Ch. Jeux", "id": 0, "value":0 },
-        ...
-        { "description": "Hall", "id": 15, "value":0 }
-    ],
-    "message": "status"
+    {
+      "description": "Bureau",
+      "id": 1,
+      "value": 0
+    },
+    ...
+    {
+      "description": "Hall",
+      "id": 15,
+      "value": 0
     }
+  ],
+  "teleinfo": {
+    "ADCO": 3258594758,
+    "OPTARIF": "HC..",
+    "ISOUSC": 45,
+    "HCHC": 32548297,
+    "HCHP": 40260054,
+    "PTEC": "HP..",
+    "IINST": 5,
+    "IMAX": 90,
+    "PAPP": 1100,
+    "HHPHC": "A",
+    "MOTDETAT": 0
+  },
+  "message": "status"
+}
+----
 
 === GET /relays/set?id=X&value=Y
 
 Specify id between 0 and 15:
 
-    $ curl -v http://192.168.1.56/relays/set?id=1&value=-1
-    {
-        "id": 1, "value":0
-    }
+[source, bash]
+----
+$ curl -v http://ioteleinfo.local/relays/set?id=1&value=-1
+{
+   "id": 1, "value":0
+}
+----
 
 TIP: value is 0, 1 or -1 to switch blindly 
 
@@ -50,4 +94,7 @@ TIP: value is 0, 1 or -1 to switch blindly
 Triggers a cycle on/off on each of the relays, with 500ms in between on/off.
 Useful to test the websocket reaction of Web UI.
 
-    $ curl -v http://192.168.1.56/test
+[source, bash]
+----
+$ curl -v http://ioteleinfo.local/test
+----
