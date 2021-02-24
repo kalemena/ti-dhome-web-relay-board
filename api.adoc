@@ -106,23 +106,40 @@ Example at link:/sketches/esp32-10-web-relay-th-teleinfo/data/index.html[index.h
 .Time events (from time to time)
 [source, json]
 ----
-{"system":{"time":"1615034255"}}
+{
+    "system":{
+        "time":"1615034255"
+    }
+}
 ----
 
 .Teleinfo events (when some field changes)
 [source, json]
 ----
-{"teleinfo":{"PAPP":"01140"}}
+{
+    "teleinfo":{
+        "PAPP":"01140"
+    }
+}
 ----
 
 .Temperature events (from time to time)
 [source, json]
 ----
-{"sensors":{"temperature":13.2,"humidity":62.75}}
+{
+    "sensors":{
+        "temperature":13.2,
+        "humidity":62.75
+    }
+}
 ----
 
 .Relays events (when a switch changes)
 [source, json]
 ----
-{"relays":[{"id":2,"value":1}]}
+{
+    "relays":[
+        {"id":2,"value":1}
+    ]
+}
 ----
