@@ -33,17 +33,9 @@ To orchestrate by automated system, use the link:api.adoc[REST API]
 
 image:res/HLA.png[HLA]
 
-== Prototypes
+== PCB
 
-=== Breadboard #1 sample
-
-image:res/breadboard-video.gif[Breadboard video]
-
-For details on wiring, see link:2-relay-board-prototype.adoc[Iteration 2: Relay Board Prototype]
-
-=== PCB #2 sample
-
-PCB sample details link:dist[here]
+PCB available at link:dist[here]
 
 image:res/web-relay-board-nodemcu-pcb1.png[PCB Board ESP8266 WeMos,width="40%"]
 
@@ -78,21 +70,11 @@ Here is list of items to purchase:
 
 == TODO
 
-- switch to ESP32 instead of NodeMCU (Wemos)
 - create 3D-printed plastic box
 
-== Prototyping iterations
+== Iterations
 
-Here are described step by step experiments to reach final product.
-
-- link:1-setup-arduino-ide-for-esp8266.adoc[Iteration 1: Setup ESP8266 board in Arduino IDE]
-- link:2-relay-board-prototype.adoc[Iteration 2: Relay Board Prototype]
-- link:3-relay-board-sketch.adoc[Iteration 3: Relay Board Sketch]
-- link:4-relay-board-sketch-2.adoc[Iteration 4: Relay Board Sketch Advanced]
-- link:5-relay-board-esp12e.adoc[Iteration 5: Relay Board ESP12E (aborted)]
-- link:6-relay-board-pcb1.adoc[Iteration 6: Relay Board PCB]
-- link:7-relay-board-websocket.adoc[Iteration 7: Relay Board WebSocket]
-- link:8-relay-board-th-teleinfo.adoc[Iteration 8: Relay Board with Sensors]
+link:iterations.adoc[Here] are described step by step experiments to reach final product.
 
 == Links
 
