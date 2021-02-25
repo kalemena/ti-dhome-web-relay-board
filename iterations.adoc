@@ -1,0 +1,346 @@
+
+= Iterations
+
+:toc:
+
+== 0 - Manual Setup ESP8266 board in Arduino IDE
+
+NOTE: Since this tutorial was written, I made available a link:https://github.com/kalemena/iot-tools[Docker Arduino IDE]
+
+The development uses simple Arduino IDE with ESP8266 libs.
+
+Follow this guide to setup ESP8266 board in Arduino IDE: link:https://github.com/esp8266/Arduino[]
+
+Documentation is here: link:http://esp8266.github.io/Arduino/versions/2.3.0/[]
+
+=== Procedure
+
+- Import ESP Board into Arduino IDE
+
+image:res/esp8266-board.png[Import ESP Boards]
+
+- Load the Libraries for ESP8266
+
+image:res/esp8266-libs.png[Load ESP libraries]
+
+- Load sample *hello* app into NodeMCU
+
+In Arduino IDE, select proper board, example:
+- Tools/Cards/NodeMCU 1.0 board
+- CPU 160 MHz
+- <correct USB device>
+
+Create sketch such as the link:sketches/esp8266-01-led/esp8266-01-led.ino[ESP8266 LED]
+
+```js
+void setup() {
+  // initialize digital pin 2 as an output.
+  pinMode(2, OUTPUT);
+}
+
+
+// the loop function runs over and over again forever
+void loop() {
+  digitalWrite(2, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(1000);              // wait for a second
+  digitalWrite(2, LOW);    // turn the LED off by making the voltage LOW
+  delay(1000);              // wait for a second
+}
+```
+
+LED should blink as shown below:
+
+image:res/esp8266-led.jpg[NodeMCU Blink]
+
+- Control a Wifi LED
+-- Upload sketch found at link:sketches/esp8266-02-led-wifi/esp8266-02-led-wifi.ino[ESP8266 LED WIFI] with changing Wifi network settings
+-- Open Serial Consoleon Arduino IDE
+-- Ensure from logs that NodeMCU connected to local Wifi
+-- Browse to IP address logged out
+-- Click on button to switch led On and Off
+
+image:res/esp8266-led-wifi.png[NodeMCU Blink Wifi]
+
+=== Resources
+
+link:https://github.com/kalemena/iot-tools/blob/master/docs/pinouts/pinouts.adoc[Arduino/ESP8266/ESP32 Pin Layout]
+
+== 1 - Docker Setup ESP8266 board in Arduino IDE
+
+See link:https://github.com/kalemena/iot-tools[Docker image kalemena:arduino:latest]
+
+* check your tty device. e.g. /dev/ttyUSB2 and match it in *Makefile*
+* open the Arduino IDE with:
+
+[source,bash]
+----
+$ make arduino
+----
+
+== 2 - Breadboard relay board
+
+image:res/breadboard-video.gif[Breadboard video]
+
+Using Node MCU for Wifi, there are few remaining constraints:
+
+- GPIOs are 3.3v and we need 5v: *ULN2803* to the rescue
+    
+    > ULN2803 is a Darlington array which can be used to translate from 3.3v digital outputs to 5v
+
+- Not enough GPIOs: *74HC595* to the rescue
+    
+    > This components enables use of 3 GPIOs to be used in serial protocol to handle in our case the 16 outputs requires for relay board
+
+Photo (showing wired relay 8 to 15):
+
+image:res/breadboard-nodemcu.png[Breadboard NodeMCU]
+
+Fritzing picture:
+
+image:res/web-relay-board-nodemcu.png[Breadboard NodeMCU]
+
+=== Procedure
+
+Few more details
+
+==== 74HC595
+
+image:res/74HC595-pins.png[74HC595 pins]
+
+We will use 3 pins from Node MCU:
+
+.wiring 74HC595
+[width="80%",cols="3,^2,10",options="header"]
+|=========================================================
+|NodeMCU |74HC595 |Comment
+
+| gpio13 (D7)   | pin 14        | data
+| gpio14 (D5)   | pin 11        | clock (both 74HC595) 
+| gpio15 (D8)   | pin 12        | latch (both 74HC595) 
+
+|=========================================================
+
+IMPORTANT: Ground and 3.3v plugged obviously.
+
+IMPORTANT: 1st 74HC595 is connected to 2nd 74HC595 from pin 9 to pin 14.
+
+NOTE: *We now have 16 I/Os through 3 ESP8266 pins!*
+
+==== ULN2803
+
+image:res/ULN2803-pins.jpg[ULN2803 pins]
+
+.wiring ULN2803
+[width="80%",cols="3,^2,10",options="header"]
+|=========================================================
+|74HC595 |ULN2803 |Comment
+
+| 8    | 9         | Ground
+| 5v (from power supply)   | 10        | *5v not the 3.3v here!*
+| Q0 to Q7   | 1 to 8        | Outputs
+
+|=========================================================
+
+=== Resources
+
+- link:http://www.instructables.com/id/NODEMCU-LUA-ESP8266-With-74HC595-LED-and-Matrix-Dr/step2/ESP8266-driving-dual-595s-with-8-x-8-Matrix/[ESP8266 8x8 matrix]
+
+== 3 - Relay board sketch
+
+After breadboard prototype done at link:2-relay-board-prototype.adoc[02 Relay Board Prototype]
+
+Now is time for a bit of coding.
+
+=== How-To
+
+Here is the first link:sketches/esp8266-web-relay-wifi/esp8266-web-relay-wifi.ino[Basic sketch]
+
+Details of mathematics in next section.
+
+Steps:
+
+- Uploaded from Arduino IDE
+- Open Arduino console
+- This should log the URL with IP address to connect to Wifi device
+- Connect using browser to see the table where you can switch on and off the relays
+
+=== Mathematics
+
+==== Binary computation
+
+We have wired 16 outputs.
+
+The outputs can be mapped to an integer from 0 to 65535.
+
+In Arduino code, this means link:https://www.arduino.cc/en/Reference/UnsignedInt[__unsigned int__]
+
+Let's see what this means from link:http://playground.arduino.cc/Code/BitMath#quickref[Byte mathematics]
+
+```js
+unsigned int relayState = 0;
+
+// state of each relay (switchId is relay number from 0 to 15):
+boolean switchState = ((relayState >> switchId) & 1);
+
+// Set relay to 0:
+relayState &= ~(1 << relayNb);
+
+// Set relat to 1:
+relayState |= (1 << relayNb);
+```
+
+==== 74HC595 - ShiftOut
+
+The link:https://www.arduino.cc/en/Reference/ShiftOut[74HC595 ShiftOut] states that it is 8 bit and requires two steps operation to shift bits.
+
+```js
+// Value is anything between 0 to 65535 representing 16 bits of data I/Os
+void switchRelay(int value) 
+{
+   // take the latchPin low:
+   digitalWrite(latchPin, LOW);
+
+   // shift out the highbyte
+   shiftOut(dataPin, clockPin, MSBFIRST, (value >> 8));
+   // shift out the lowbyte
+   shiftOut(dataPin, clockPin, MSBFIRST, value);
+
+   //take the latch pin high so the LEDs will light up:
+   digitalWrite(latchPin, HIGH);
+}
+```
+
+== 4 - Relay board sketch
+
+Latest itretaion link:3-relay-board-sketch.adoc[First sketch] is not very efficient.
+
+It only touched simple ESP8266 capability.
+
+This iteration is about going deeper into the topic:
+
+- host static files such as images or CSS files
+- use the SPIFFS ~3MB flash storage
+- better HTML rendering
+- web sockets
+
+=== Steps
+
+==== Un coup dans le 'SPIFFS'
+
+To leverage most of the 4MB disk from ESP8266, install plugin:
+
+link:https://github.com/esp8266/arduino-esp8266fs-plugin[Arduino IDE SPIFFS plugin]
+
+Usage is pretty simple:
+
+- create subfolder from sketch folder named 'data'
+- use Arduino IDE / Tools / ESP Sketch Data Upload
+- this takes very long as it uploads ~ 3MB (no matter what)
+
+==== Sketch details
+
+The sketch can be found under link:sketches/esp8266-05-web-relay-advanced[web-relay-advanced] folder.
+
+This is a basic sketch from SPIFFS example, with addition of relay web services.
+
+SPIFFS is used only to load SVG images to be displayed on URL /index.htm.
+
+== 5 - ESP8266 - 12E
+
+Switch from NodeMCU to ESP12.
+
+WARNING: This is aborted story, but it was interesting study! Instead ESP32 might be of better interest.
+
+=== Wiring
+
+=== Resources
+
+* link:http://arduino-er.blogspot.fr/2015/05/fit-esp-12-breakout-board-on-breadboard.html[]
+* link:http://myrobotlab.org/content/esp8266-12-series-wifi-modules-update-out-lua-arduino-ide[]
+
+== 6 - PCB based on NodeMCU WeMos
+
+PCB sample details link:dist[here]
+
+image:res/web-relay-board-nodemcu-pcb1.png[PCB Board ESP8266 WeMos,width="40%"]
+
+PCB was printed at link:https://www.dfrobot.com/index.php?route=product/pcb&product_id=1351[DFRobot]
+
+== How-To
+
+=== PCB - Fritzing
+
+PCB was done using fritzing, the lazy way.
+
+WARNING: Auto-routing did not work (as often) so all is routed manually.
+
+See link:https://fritzing.org/home/[Fritzing]
+
+Fritzing project can be found link:https://github.com/kalemena/ti-dhome-web-relay-board/blob/master/web-relay-board-nodemcu.fzz[here]
+
+== 7 - WebSocket
+
+Adding WebSocket code for Arduino and Web UI.
+
+Also updated SPIFFS to LittleFS.
+
+[TIP]
+====
+To test, 
+- open Web UI at http://iotrelays.local/ 
+- *curl http://iotrelays.local/test 
+
+This initiate the rolling on/off test on each relay one by one.
+The UI should move according to relay current state because it receives web socket events.
+====
+
+* link:/sketches/esp8266-07-web-relay-web-socket/esp8266-07-web-relay-web-socket.ino[Sketch]
+* link:/sketches/esp8266-07-web-relay-web-socket/data/index.html[Web UI]
+
+== 8 - T/H and Teleinfo
+
+Adding Sensors Temperature, Humidity and France Power (Teleinfo).
+
+The board created in previous iterations supports a T/H sensor HTU21 and the components required for Teleinfo.
+
+Examples:
+
+* link:https://github.com/kalemena/iot-tools/blob/master/sketches/esp8266-htu21d-test/esp8266-htu21d-test.ino[Example HTU21S]
+* link:https://github.com/kalemena/iot-tools/blob/master/sketches/teleinfo/teleinfo.ino[Example Téléinfo]
+
+Complete sources:
+
+* link:/sketches/esp8266-08-web-relay-th-teleinfo/esp8266-08-web-relay-th-teleinfo.ino[Sketch]
+* link:/sketches/esp8266-08-web-relay-th-teleinfo/data/index.html[Web UI]
+
+== References
+
+.Teleinfo
+image:/res/ordre_fil_pilote.jpg[Teleinfo]
+
+* link:https://particulier.edf.fr/content/dam/2-Actifs/Documents/Offres/Grille_prix_Tarif_Bleu.pdf[Cost EDF]
+* link:https://github.com/hallard/LibTeleinfo/blob/master/examples/Wifinfo/Wifinfo.ino[Hallard LibTeleinfo]
+
+== 9 - ESP 32
+
+Switching to ESP32 with same form factor as Wemos D1 mini.
+
+image:https://github.com/kalemena/iot-tools/raw/master/boards/esp32-pins.png[ESP 32 pins]
+
+Main differences with Wemos ESP8266:
+
+* Pins are slightly different, but can fit previously created PCB without soldering
+* ESP32 system info
+* Wifi and WebServer libs don't allow same port WebSocket
+* SoftwareSerial is replaced with HardwareSerial
+* Web UI is enhanced to allow continuous update of power and temperature sensor
+
+Complete sources:
+
+* link:/sketches/esp32-10-web-relay-th-teleinfo/esp32-10-web-relay-th-teleinfo.ino[Sketch]
+* link:/sketches/esp32-10-web-relay-th-teleinfo/data/index.html[Web UI]
+
+== References
+
+* link:https://github.com/hallard/LibTeleinfo/blob/master/examples/Wifinfo/Wifinfo.ino[Hallard LibTeleinfo]
+* link:https://arduinojson.org/v6/assistant/[JSON Assistant]
