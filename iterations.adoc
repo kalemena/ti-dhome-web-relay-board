@@ -147,8 +147,6 @@ image:res/ULN2803-pins.jpg[ULN2803 pins]
 
 == 3 - Relay board sketch
 
-After breadboard prototype done at link:2-relay-board-prototype.adoc[02 Relay Board Prototype]
-
 Now is time for a bit of coding.
 
 === How-To
@@ -211,10 +209,6 @@ void switchRelay(int value)
 ```
 
 == 4 - Relay board sketch
-
-Latest itretaion link:3-relay-board-sketch.adoc[First sketch] is not very efficient.
-
-It only touched simple ESP8266 capability.
 
 This iteration is about going deeper into the topic:
 
