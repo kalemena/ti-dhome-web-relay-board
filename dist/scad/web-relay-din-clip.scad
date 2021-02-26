@@ -25,3 +25,23 @@ module din_clip() {
         }
     }
 }
+
+module din_relay_board() {
+    difference() {
+        union() {
+            din_clip();
+            translate([-10,0,0]) cube([6,90,DIN_CLIP_W], center=true);
+            translate([-11.5,-82.5/2,0]) cube([9,9,DIN_CLIP_W], center=true);
+            translate([-11.5,+82.5/2,0]) cube([9,9,DIN_CLIP_W], center=true);
+        }
+        
+        translate([-10,-82.5/2,0]) rotate([0,90,0]) cylinder(d=3.2,h=15,center=true);
+        translate([-10,+82.5/2,0]) rotate([0,90,0]) cylinder(d=3.2,h=15,center=true);
+        
+        translate([-4,-82.5/2,0]) rotate([0,90,0]) cylinder(d=5.7,h=10,center=true, $fn=6);
+        translate([-4,+82.5/2,0]) rotate([0,90,0]) cylinder(d=5.7,h=10,center=true, $fn=6);
+    }
+}
+
+din_relay_board();
+
