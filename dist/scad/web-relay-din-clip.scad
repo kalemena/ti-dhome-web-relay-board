@@ -11,7 +11,7 @@ module din_clip() {
                 translate([9,-18.8,0]) cylinder(d=1,h=DIN_CLIP_W+0.1,center=true);
                 translate([-3.7,-18.8,0]) cylinder(d=1,h=DIN_CLIP_W+0.1,center=true);
             }
-            translate([7.5,-1,0]) cube([4,36.3,DIN_CLIP_W+0.1],center=true);
+            translate([7,-1,0]) cube([3,36,DIN_CLIP_W+0.1],center=true);
         }
         hull() {
             translate([11,-21,0]) cylinder(d=1,h=DIN_CLIP_W,center=true);
@@ -44,4 +44,3 @@ module din_relay_board() {
 }
 
 din_relay_board();
-
