@@ -319,7 +319,7 @@ image:/res/ordre_fil_pilote.jpg[Teleinfo]
 
 Switching to ESP32 with same form factor as Wemos D1 mini.
 
-image:https://github.com/kalemena/iot-tools/raw/master/boards/esp32-pins.png[ESP 32 pins]
+image:https://github.com/kalemena/iot-tools/blob/master/src/main/adoc/categories/pinouts/pinout-esp32-wemos-clone.png[ESP 32 pins]
 
 Main differences with Wemos ESP8266:
 
