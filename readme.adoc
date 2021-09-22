@@ -56,13 +56,19 @@ Here is list of items to purchase:
 |=========================================================
 |Component |Price |Comment
 
-|SainSmart 16 relays |~ 12€ | 16 relays 12v with 5v data triggers
+| SainSmart 16 relays |~ 12€ | 16 relays 12v with 5v data triggers
 
-|Wemos ESP8266 or ESP32 with (Wemos-clone pin layout)] |~ 4€ | 
+| Wemos ESP8266 or ESP32 with (Wemos-clone pin layout)] |~ 4€ | 
 
-|2x 74HC595 |~ 0.2€ | Shift Register IC DIP-16 Texas (sold by 20)
+| 2x 74HC595 |~ 0.2€ | Shift Register IC DIP-16 Texas (sold by 20)
 
-|2x ULN2803 |~ 0.12€ | (sold by 20)
+| 2x ULN2803 |~ 0.12€ | (sold by 20)
+
+| Optional (for Teleinfo and Temperature sensor | |
+
+| SFH6206 | < 1€ | Optocoupler for Teleinfo
+| 4.7k resistor | | For Teleinfo
+| HTU21D | < 4€ | Temperature sensor
 
 | *Total* | ~ 20€ |
 
