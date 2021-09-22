@@ -56,13 +56,13 @@ Here is list of items to purchase:
 |=========================================================
 |Component |Price |Comment
 
-|link:http://www.sainsmart.com/relay-1/16-channel-12v-relay-module-for-pic-arm-avr-dsp-arduino-msp430-ttl-logic.html[SainSmart 16 relays] |~ 12€ | 16 relays 12v with 5v data triggers
+|SainSmart 16 relays |~ 12€ | 16 relays 12v with 5v data triggers
 
-|link:https://www.amazon.fr/Ferrell-D1-Mini-ESP8266-NodeMcu/dp/B00A3PHBB8/ref=asc_df_B00A3PHBB8[Wemos ESP8266] |~ 4€ | 
+|Wemos ESP8266 or ESP32 with (Wemos-clone pin layout)] |~ 4€ | 
 
-|link:http://www.ebay.fr/itm/20-x-74HC595-8-bit-Shift-Register-IC-DIP-16-TEXAS-/260843227719[2x 74HC595] |~ 0.2€ | Shift Register IC DIP-16 Texas (sold by 20)
+|2x 74HC595 |~ 0.2€ | Shift Register IC DIP-16 Texas (sold by 20)
 
-|link:https://www.ebay.fr/itm/10Pcs-ULN2803A-ULN2803-2803-Transistor-Array-8-NPN-IC-DIP-18-6H/153489654696[2x ULN2803] |~ 0.12€ | (sold by 20)
+|2x ULN2803 |~ 0.12€ | (sold by 20)
 
 | *Total* | ~ 20€ |
 
