@@ -1,6 +1,4 @@
-
 = Iterations
-
 :toc:
 
 == 0 - Manual Setup ESP8266 board in Arduino IDE
@@ -52,18 +50,18 @@ LED should blink as shown below:
 
 image:res/esp8266-led.jpg[NodeMCU Blink]
 
-- Control a Wifi LED
--- Upload sketch found at link:sketches/esp8266-02-led-wifi/esp8266-02-led-wifi.ino[ESP8266 LED WIFI] with changing Wifi network settings
--- Open Serial Consoleon Arduino IDE
--- Ensure from logs that NodeMCU connected to local Wifi
--- Browse to IP address logged out
--- Click on button to switch led On and Off
+* Control a Wifi LED
+** Upload sketch found at link:sketches/esp8266-02-led-wifi/esp8266-02-led-wifi.ino[ESP8266 LED WIFI] with changing Wifi network settings
+** Open Serial Consoleon Arduino IDE
+** Ensure from logs that NodeMCU connected to local Wifi
+** Browse to IP address logged out
+** Click on button to switch led On and Off
 
 image:res/esp8266-led-wifi.png[NodeMCU Blink Wifi]
 
 === Resources
 
-link:https://github.com/kalemena/iot-tools/blob/master/docs/pinouts/pinouts.adoc[Arduino/ESP8266/ESP32 Pin Layout]
+link:https://kalemena.github.io/iot-tools/[Arduino/ESP8266/ESP32 Pin Layout]
 
 == 1 - Docker Setup ESP8266 board in Arduino IDE
 
@@ -151,7 +149,7 @@ Now is time for a bit of coding.
 
 === How-To
 
-Here is the first link:sketches/esp8266-web-relay-wifi/esp8266-web-relay-wifi.ino[Basic sketch]
+Here is the first link:sketches/esp8266-04-web-relay-wifi/esp8266-04-web-relay-wifi.ino[Basic sketch]
 
 Details of mathematics in next section.
 
@@ -280,11 +278,11 @@ Also updated SPIFFS to LittleFS.
 
 [TIP]
 ====
-To test, 
-- open Web UI at http://iotrelays.local/ 
+To test, +
+- open Web UI at http://iotrelays.local/ +
 - *curl http://iotrelays.local/test 
 
-This initiate the rolling on/off test on each relay one by one.
+This initiate the rolling on/off test on each relay one by one. +
 The UI should move according to relay current state because it receives web socket events.
 ====
 
@@ -299,13 +297,13 @@ The board created in previous iterations supports a T/H sensor HTU21 and the com
 
 Examples:
 
-* link:https://github.com/kalemena/iot-tools/blob/master/sketches/esp8266-htu21d-test/esp8266-htu21d-test.ino[Example HTU21S]
-* link:https://github.com/kalemena/iot-tools/blob/master/sketches/teleinfo/teleinfo.ino[Example Téléinfo]
+* link:https://github.com/kalemena/iot-tools/blob/master/src/main/sketches/esp8266-htu21d-test/esp8266-htu21d-test.ino[Example HTU21S]
+* link:https://github.com/kalemena/iot-tools/blob/master/src/main/sketches/teleinfo/teleinfo.ino[Example Téléinfo]
 
 Complete sources:
 
-* link:/sketches/esp8266-08-web-relay-th-teleinfo/esp8266-08-web-relay-th-teleinfo.ino[Sketch]
-* link:/sketches/esp8266-08-web-relay-th-teleinfo/data/index.html[Web UI]
+* link:/sketches/esp32-10-web-relay-th-teleinfo/esp32-10-web-relay-th-teleinfo.ino[Sketch]
+* link:/sketches/esp32-10-web-relay-th-teleinfo/data/index.html[Web UI]
 
 == References
 
