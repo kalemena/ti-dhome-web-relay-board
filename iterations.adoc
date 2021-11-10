@@ -305,10 +305,10 @@ Complete sources:
 * link:/sketches/esp32-10-web-relay-th-teleinfo/esp32-10-web-relay-th-teleinfo.ino[Sketch]
 * link:/sketches/esp32-10-web-relay-th-teleinfo/data/index.html[Web UI]
 
-== References
+.Teleinfo wiring schema:
+image:/res/schema-fil-pilote.jpg[Fil Pilote]
 
-.Teleinfo
-image:/res/ordre_fil_pilote.jpg[Teleinfo]
+== References
 
 * link:https://particulier.edf.fr/content/dam/2-Actifs/Documents/Offres/Grille_prix_Tarif_Bleu.pdf[Cost EDF]
 * link:https://github.com/hallard/LibTeleinfo/blob/master/examples/Wifinfo/Wifinfo.ino[Hallard LibTeleinfo]
