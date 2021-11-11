@@ -243,8 +243,6 @@ Switch from NodeMCU to ESP12.
 
 WARNING: This is aborted story, but it was interesting study! Instead ESP32 might be of better interest.
 
-=== Wiring
-
 === Resources
 
 * link:http://arduino-er.blogspot.fr/2015/05/fit-esp-12-breakout-board-on-breadboard.html[]
@@ -257,8 +255,6 @@ PCB sample details link:dist[here]
 image:res/web-relay-board-nodemcu-pcb1.png[PCB Board ESP8266 WeMos,width="40%"]
 
 PCB was printed at link:https://www.dfrobot.com/index.php?route=product/pcb&product_id=1351[DFRobot]
-
-== How-To
 
 === PCB - Fritzing
 
@@ -305,10 +301,10 @@ Complete sources:
 * link:/sketches/esp32-10-web-relay-th-teleinfo/esp32-10-web-relay-th-teleinfo.ino[Sketch]
 * link:/sketches/esp32-10-web-relay-th-teleinfo/data/index.html[Web UI]
 
-.Teleinfo wiring schema:
-image:res/schema-fil-pilote.png[Fil Pilote]
+.Wiring Teleinfo
+image:res/ArduinoProMini-sensor-teleinfo.png[Teleinfo]
 
-== References
+=== References
 
 * link:https://particulier.edf.fr/content/dam/2-Actifs/Documents/Offres/Grille_prix_Tarif_Bleu.pdf[Cost EDF]
 * link:https://github.com/hallard/LibTeleinfo/blob/master/examples/Wifinfo/Wifinfo.ino[Hallard LibTeleinfo]
@@ -332,7 +328,13 @@ Complete sources:
 * link:/sketches/esp32-10-web-relay-th-teleinfo/esp32-10-web-relay-th-teleinfo.ino[Sketch]
 * link:/sketches/esp32-10-web-relay-th-teleinfo/data/index.html[Web UI]
 
+== 10 - Wiring the Heaters using Fil Pilote
+
+This is high-level schema to wire the relays onto the heaters and perform on/off/low heat actions.
+
+.Fil Pilote wiring schema:
+image:res/schema-fil-pilote.png[Fil Pilote]
+
 == References
 
-* link:https://github.com/hallard/LibTeleinfo/blob/master/examples/Wifinfo/Wifinfo.ino[Hallard LibTeleinfo]
 * link:https://arduinojson.org/v6/assistant/[JSON Assistant]
