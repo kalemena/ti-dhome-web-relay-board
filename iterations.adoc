@@ -306,7 +306,7 @@ Complete sources:
 * link:/sketches/esp32-10-web-relay-th-teleinfo/data/index.html[Web UI]
 
 .Teleinfo wiring schema:
-image:res/schema-fil-pilote.jpg[Fil Pilote]
+image:res/schema-fil-pilote.png[Fil Pilote]
 
 == References
 
