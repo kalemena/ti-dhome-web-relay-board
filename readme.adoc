@@ -8,83 +8,11 @@ endif::[]
 
 == Description
 
-This project is an Open Source / Open Hardware minimal approach for a Web Relay Board.
+This project is an Open Source / Open Hardware minimal approach to build a Web Relay Board.
 This Web Relay Board allows to connect 16 devices allowing to switch on/off Main Power.
 
 WARNING: Caution with 230v. Do not use high current.
 
-The Web Relay board uses HTTP/REST API as interface.
-Additionaly, simple Web UI is implemented on top of the REST API.
+Check more info in link:http://kalemena.github.io/ti-dhome-web-relay-board/[Details].
 
-In practice, the Web Relay is used to manage electric heaters with data wire named link:http://www.planete-domotique.com/blog/2012/01/05/piloter-un-radiateur-grace-a-son-fil-pilote/[fil pilote] which is 230v at very low current.
-
-NOTE: This project is part of a wider link:https://github.com/kalemena/ti-dhome[TiDhome Home Automation] project.
-
-image:res/web-interface.png[Web Relays UI]
-
-To orchestrate by automated system, use the link:api.adoc[REST API]
-
-== Specifications
-
-- 16 relays (10 heaters are wired, plus 4 actuators)
-- Wifi
-- REST API
-- Simple web UI
-
-image:res/HLA.png[HLA]
-
-== PCB
-
-PCB available at link:dist[here]
-
-image:res/web-relay-board-nodemcu-pcb1.png[PCB Board ESP8266 WeMos,width="40%"]
-
-PCB was printed at link:https://www.dfrobot.com/index.php?route=product/pcb&product_id=1351[DFRobot]
-
-=== Integration in Electric panel
-
-Here is an integration of freshly solder PCB into electric panel:
-
-image:res/web-relay-board-nodemcu-in-place.png[Electric panel Web Relays]
-
-== BOM
-
-Here is list of items to purchase:
-
-.BOM
-[width="80%",cols="3,^2,10",options="header"]
-|=========================================================
-|Component |Price |Comment
-
-| SainSmart 16 relays |~ 12€ | 16 relays 12v with 5v data triggers
-
-| Wemos ESP8266 or ESP32 with (Wemos-clone pin layout)] |~ 4€ | 
-
-| 2x 74HC595 |~ 0.2€ | Shift Register IC DIP-16 Texas (sold by 20)
-
-| 2x ULN2803 |~ 0.12€ | (sold by 20)
-
-| Optional (for Teleinfo and Temperature sensor | |
-
-| SFH6206 | < 1€ | Optocoupler for Teleinfo
-| 4.7k resistor | | For Teleinfo
-| HTU21D | < 4€ | Temperature sensor
-
-| *Total* | ~ 20€ |
-
-|=========================================================
-
-== TODO
-
-- create 3D-printed plastic box
-
-== Iterations
-
-link:iterations.adoc[Here] are described step by step experiments to reach final product.
-
-== Links
-
-Other interesting links for more specific heater oriented board:
-
-* link:https://github.com/tducret/programmateur-fil-pilote-wifi/tree/master/Mat%C3%A9riel/1.3/Tutoriel[Programmateur-fil-pilote-wifi]
-* link:http://www.wiki.coworking-aurillac.fr/esp-8266-commande-radiateurs-electriques-sur-fil-pilote/[Commande-radiateurs-electriques]
+image:src/main/adoc/images/HLA.png[HLA]
