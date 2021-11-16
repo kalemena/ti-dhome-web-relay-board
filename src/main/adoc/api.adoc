@@ -1,3 +1,4 @@
+= API
 :toc:
 :hardbreaks:
 
@@ -8,17 +9,15 @@ REST API and websocket API are returning same JSON structure data.
 Additionaly, websocket will periodically push changing info such as other user relay switch, Téléinfo and temperature.
 ====
 
-== API
-
 Below is API description with examples:
 
-=== GET /
+== GET /
 
 Main HTML page display simple button and status:
 
-image:res/web-interface.png[Web Relays UI]
+image:web-interface.png[Web Relays UI]
 
-=== GET /status
+== GET /status
 
 [source, json]
 ----
@@ -75,7 +74,7 @@ $ curl http://ioteleinfo.local/status | jq .
 }
 ----
 
-=== GET /relays/set?id=X&value=Y
+== GET /relays/set?id=X&value=Y
 
 Specify id between 0 and 15:
 
@@ -89,7 +88,7 @@ $ curl -v http://ioteleinfo.local/relays/set?id=1&value=-1
 
 TIP: value is 0, 1 or -1 to switch blindly 
 
-=== GET /test
+== GET /test
 
 Triggers a cycle on/off on each of the relays, with 500ms in between on/off.
 Useful to test the websocket reaction of Web UI.
