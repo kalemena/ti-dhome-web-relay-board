@@ -75,7 +75,15 @@ Here is list of items to purchase:
 
 |=========================================================
 
-// non-GitHub
+
+// GitHub - api
+ifdef::env-github[]
+
+link:api.adoc[API page] describes sample queries.
+
+endif::[]
+
+// non-GitHub - api
 ifndef::env-github[]
 
 :leveloffset: +1
@@ -90,6 +98,7 @@ endif::[]
 
 - create 3D-printed plastic box
 
+// GitHub - iterations
 ifdef::env-github[]
 
 == Iterations
@@ -98,7 +107,7 @@ link:iterations.adoc[Here] are described step by step experiments to reach final
 
 endif::[]
 
-// non-GitHub
+// non-GitHub - iterations
 ifndef::env-github[]
 
 :leveloffset: +1
