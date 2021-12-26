@@ -1,6 +1,6 @@
 /* 
   ti-dhome - esp32 base web relay board
-  Copyright (c) 2021 Kalemena. All rights reserved.
+  Copyright (c) 2022 Kalemena. All rights reserved.
 
   access the sample web page at http://iotrelays.local
   edit the page by going to http://iotrelays.local/edit
