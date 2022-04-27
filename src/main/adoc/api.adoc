@@ -100,7 +100,7 @@ $ curl -v http://ioteleinfo.local/test
 
 == WebSocket
 
-Example at link:/sketches/esp32-10-web-relay-th-teleinfo/data/index.html[index.html]
+Example at link:/src/main/sketches/esp32-10-web-relay-th-teleinfo/data/index.html[index.html]
 
 .Time events (from time to time)
 [source, json]

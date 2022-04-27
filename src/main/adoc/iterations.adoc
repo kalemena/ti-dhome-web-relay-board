@@ -28,7 +28,7 @@ In Arduino IDE, select proper board, example:
 - CPU 160 MHz
 - <correct USB device>
 
-Create sketch such as the link:{giturl}/sketches/esp8266-01-led/esp8266-01-led.ino[ESP8266 LED]
+Create sketch such as the link:{giturl}/src/main/sketches/esp8266-01-led/esp8266-01-led.ino[ESP8266 LED]
 
 ```js
 void setup() {
@@ -51,7 +51,7 @@ LED should blink as shown below:
 image:esp8266-led.jpg[NodeMCU Blink]
 
 * Control a Wifi LED
-** Upload sketch found at link:{giturl}/sketches/esp8266-02-led-wifi/esp8266-02-led-wifi.ino[ESP8266 LED WIFI] with changing Wifi network settings
+** Upload sketch found at link:{giturl}/src/main/sketches/esp8266-02-led-wifi/esp8266-02-led-wifi.ino[ESP8266 LED WIFI] with changing Wifi network settings
 ** Open Serial Consoleon Arduino IDE
 ** Ensure from logs that NodeMCU connected to local Wifi
 ** Browse to IP address logged out
@@ -149,7 +149,7 @@ Now is time for a bit of coding.
 
 === How-To
 
-Here is the first link:{giturl}/sketches/esp8266-04-web-relay-wifi/esp8266-04-web-relay-wifi.ino[Basic sketch]
+Here is the first link:{giturl}/src/main/sketches/esp8266-04-web-relay-wifi/esp8266-04-web-relay-wifi.ino[Basic sketch]
 
 Details of mathematics in next section.
 
@@ -231,7 +231,7 @@ Usage is pretty simple:
 
 ==== Sketch details
 
-The sketch can be found under link:{giturl}/sketches/esp8266-05-web-relay-advanced[web-relay-advanced] folder.
+The sketch can be found under link:{giturl}/src/main/sketches/esp8266-05-web-relay-advanced[web-relay-advanced] folder.
 
 This is a basic sketch from SPIFFS example, with addition of relay web services.
 
@@ -282,8 +282,8 @@ This initiate the rolling on/off test on each relay one by one. +
 The UI should move according to relay current state because it receives web socket events.
 ====
 
-* link:{giturl}/sketches/esp8266-07-web-relay-web-socket/esp8266-07-web-relay-web-socket.ino[Sketch]
-* link:{giturl}/sketches/esp8266-07-web-relay-web-socket/data/index.html[Web UI]
+* link:{giturl}/src/main/sketches/esp8266-07-web-relay-web-socket/esp8266-07-web-relay-web-socket.ino[Sketch]
+* link:{giturl}/src/main/sketches/esp8266-07-web-relay-web-socket/data/index.html[Web UI]
 
 == 8 - T/H and Teleinfo
 
@@ -293,13 +293,13 @@ The board created in previous iterations supports a T/H sensor HTU21 and the com
 
 Examples:
 
-* link:https://github.com/kalemena/iot-tools/blob/master/src/main/sketches/esp8266-htu21d-test/esp8266-htu21d-test.ino[Example HTU21S]
-* link:https://github.com/kalemena/iot-tools/blob/master/src/main/sketches/teleinfo/teleinfo.ino[Example Téléinfo]
+* link:https://github.com/kalemena/iot-tools/blob/master/src/main/src/main/sketches/esp8266-htu21d-test/esp8266-htu21d-test.ino[Example HTU21S]
+* link:https://github.com/kalemena/iot-tools/blob/master/src/main/src/main/sketches/teleinfo/teleinfo.ino[Example Téléinfo]
 
 Complete sources:
 
-* link:{giturl}/sketches/esp32-10-web-relay-th-teleinfo/esp32-10-web-relay-th-teleinfo.ino[Sketch]
-* link:{giturl}/sketches/esp32-10-web-relay-th-teleinfo/data/index.html[Web UI]
+* link:{giturl}/src/main/sketches/esp32-10-web-relay-th-teleinfo/esp32-10-web-relay-th-teleinfo.ino[Sketch]
+* link:{giturl}/src/main/sketches/esp32-10-web-relay-th-teleinfo/data/index.html[Web UI]
 
 .Wiring Teleinfo
 image:ArduinoProMini-sensor-teleinfo.png[Teleinfo]
@@ -325,8 +325,8 @@ Main differences with Wemos ESP8266:
 
 Complete sources:
 
-* link:{giturl}/sketches/esp32-10-web-relay-th-teleinfo/esp32-10-web-relay-th-teleinfo.ino[Sketch]
-* link:{giturl}/sketches/esp32-10-web-relay-th-teleinfo/data/index.html[Web UI]
+* link:{giturl}/src/main/sketches/esp32-10-web-relay-th-teleinfo/esp32-10-web-relay-th-teleinfo.ino[Sketch]
+* link:{giturl}/src/main/sketches/esp32-10-web-relay-th-teleinfo/data/index.html[Web UI]
 
 == 10 - Wiring the Heaters using Fil Pilote
 

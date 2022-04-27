@@ -36,7 +36,7 @@ image:web-interface.png[Web Relays UI]
 
 == PCB
 
-PCB available at link:{giturl}/dist[here]
+PCB available at link:{giturl}/src/main/gerber[here]
 
 image:web-relay-board-nodemcu-pcb1.png[PCB Board ESP8266 WeMos,width="40%"]
 
