@@ -293,8 +293,8 @@ The board created in previous iterations supports a T/H sensor HTU21 and the com
 
 Examples:
 
-* link:https://github.com/kalemena/iot-tools/blob/master/src/main/src/main/sketches/esp8266-htu21d-test/esp8266-htu21d-test.ino[Example HTU21S]
-* link:https://github.com/kalemena/iot-tools/blob/master/src/main/src/main/sketches/teleinfo/teleinfo.ino[Example Téléinfo]
+* link:https://github.com/kalemena/iot-tools/blob/master/src/main/sketches/esp8266-htu21d-test/esp8266-htu21d-test.ino[Example HTU21S]
+* link:https://github.com/kalemena/iot-tools/blob/master/src/main/sketches/teleinfo/teleinfo.ino[Example Téléinfo]
 
 Complete sources:
 
