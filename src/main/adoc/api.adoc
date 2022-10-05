@@ -58,7 +58,7 @@ $ curl http://ioteleinfo.local/status | jq .
     }
   ],
   "teleinfo": {
-    "ADCO": 3258594758,
+    "ADCO": 123456789,
     "OPTARIF": "HC..",
     "ISOUSC": 45,
     "HCHC": 32548297,
