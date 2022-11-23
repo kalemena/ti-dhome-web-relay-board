@@ -1,0 +1,17 @@
+= Example - Teleinfo
+:toc:
+:hardbreaks:
+
+This folder contains a sample demoing how to graph Teleinfo data.
+
+Teleinfo is France EDF metrics of your home power consumption.
+
+There are several types of information provided by Teleinfo:
+
+- Live power: 
+PAPP, etc
+
+- Historical: 
+Based on indexes, energy can be easily computed.
+This however might depend on High/Low hours costs.
+Costs is a simple computation of counter rate, multiplied by H/L costs.
