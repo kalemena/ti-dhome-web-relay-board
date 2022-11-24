@@ -9,7 +9,14 @@ endif::[]
 == Description
 
 This project is an Open Source / Open Hardware minimal approach to build a Web Relay Board.
-This Web Relay Board allows to connect 16 devices allowing to switch on/off Main Power.
+
+This Web Relay Board:
+
+- allows to connect 16 devices allowing to switch on/off Main Power
+- has temperature / humidity sensor
+- captures Téléinfo (France Electricity provider serial consumption data)
+- has REST API
+- has Web Socket API
 
 WARNING: Caution with 230v. Do not use high current.
 
