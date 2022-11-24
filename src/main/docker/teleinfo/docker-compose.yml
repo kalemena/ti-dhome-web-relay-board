@@ -1,0 +1,19 @@
+version: '3.7'
+
+networks:
+  default:
+
+volumes:
+  victoriametrics-teleinfo-data:
+services:
+
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:v1.84.0
+    restart: always
+    ports:
+      - 8428
+    volumes:
+      - victoriametrics-teleinfo-data:/victoria-metrics-data
+    command:
+      - "--retentionPeriod=3y"
+      # - "--storageDataPath=/storage"
