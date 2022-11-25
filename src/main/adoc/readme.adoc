@@ -27,11 +27,11 @@ In practice, the Web Relay is used to manage electric heaters with data wire nam
 
 NOTE: This project is part of a wider link:https://github.com/kalemena/ti-dhome[TiDhome Home Automation] project.
 
-.Integration WebRelay
+.Integration WebRelay and Teleinfo
 image:HLA.png[HLA]
 
 .Integration Teleinfo
-image:Teleinfo.png[]
+image:grafana-teleinfo.png[]
 
 == Specifications
 
