@@ -33,7 +33,7 @@ image:HLA.png[HLA]
 .Integration Teleinfo
 image:grafana-teleinfo.png[]
 
-INFO: Above is an example of a dashboard created as part of Ti-Dhome project and using mostly Teleinfo data produces by the module in this repo, published to Node-Red through Web Sockets and inserted in Prometheus for Grafana use.
+NOTE: Above is an example of a dashboard created as part of Ti-Dhome project and using mostly Teleinfo data produces by the module in this repo, published to Node-Red through Web Sockets and inserted in Prometheus for Grafana use.
 
 == Specifications
 
