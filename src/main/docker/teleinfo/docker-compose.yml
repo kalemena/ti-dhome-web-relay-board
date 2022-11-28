@@ -8,7 +8,7 @@ volumes:
 services:
 
   victoriametrics:
-    image: victoriametrics/victoria-metrics:v1.84.0
+    image: victoriametrics/victoria-metrics:v1.85.0
     restart: always
     ports:
       - 8428
@@ -17,3 +17,12 @@ services:
     command:
       - "--retentionPeriod=3y"
       # - "--storageDataPath=/storage"
+
+  grafana:
+    image: grafana/grafana:9.1.5
+    restart: always
+    ports:
+      - 3080:3000
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-default}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-password}
