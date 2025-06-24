@@ -1,0 +1,199 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html"; charset="utf-8">
+    <title>Web relays</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+
+      var ws;
+      var firstTime = true;
+
+      function ws_connect() {
+        ws = new WebSocket('ws://' + location.hostname + ':81', ['arduino']);
+        // ws = new WebSocket('ws://192.168.1.40:80/ws', ['arduino']);
+        // ws = new WebSocket('ws://192.168.1.55:81', ['arduino']);
+
+        ws.onopen = function () {
+          console.log('Connected');
+          //ws.send('Connect ' + new Date());
+          //ws.send('/status');
+        };
+        ws.onclose = function(e) {
+          console.log('Socket is closed. Reconnect will be attempted in 5 second.', e.reason);
+          setTimeout(function() {
+            ws_connect();
+          }, 5000);
+        };
+        ws.onerror = function (error) {
+          console.log('WebSocket Error ', error);
+        };
+        ws.onmessage = function (e) {
+          console.log('Server: \n', e.data);
+          
+          //const eventData = e.data.split('~');
+          //var eventName = eventData[0];
+          var eventBody = JSON.parse(e.data);
+
+          if(eventBody.system) {
+            if(eventBody.system.time) {
+              var theDate = new Date( Number(eventBody.system.time) *1000);
+              // theDate.toGMTString()
+              // theDate.toLocaleString())
+              document.getElementById("systemTime").innerHTML = theDate.toLocaleString()
+            }
+            if(eventBody.system.heap) {
+              document.getElementById("systemHeap").innerHTML = eventBody.system.heap
+            }
+          }
+          if(eventBody.sensors) {
+            document.getElementById("sensorsTH").innerHTML = eventBody.sensors.temperature + " °C<br/>" + eventBody.sensors.humidity + " %"
+          }          
+          if(eventBody.relays) {
+            if(firstTime == true) {
+              $("#tableRelays tbody").children().remove()
+              for(relay in eventBody.relays) {
+                tableRelaysAdd(eventBody.relays[relay]);
+              }
+              firstTime = false;
+
+            } else {
+              for(relay in eventBody.relays) {
+                console.log(eventBody.relays[relay]);
+
+                // update button
+                buttonImageFile = (eventBody.relays[relay].value == 0 ? "off.svg" : "on.svg")
+                buttonImage = "<img src=\"/" + buttonImageFile +"\" height=\"40\" width=\"32\"/>"
+                
+                // console.log('buttonImage: \n', buttonImage);
+                // console.log('id: \n', eventBody.id);
+                document.getElementById("switch" + eventBody.relays[relay].id).innerHTML = buttonImage;
+              }
+            }
+          }
+          if(eventBody.teleinfo) {
+            console.log('teleinfo: ', eventBody.teleinfo);
+            //for(var teleinfoKey in eventBody.teleinfo) {
+              //console.log('teleinfo: ', teleinfoKey, ' = ', eventBody.teleinfo[teleinfoKey]);
+              updateTeleinfo(eventBody.teleinfo);
+            //}
+          }
+        };
+      }
+
+      ws_connect();
+
+      setInterval(readTH, 10 * 1000);
+      setInterval(readTime, 60 * 1000);
+
+      function updateTeleinfo(eventBody) {
+        // if(eventBody.IINST) {
+        //   document.getElementById("teleinfoIINST").innerHTML = (Number(eventBody.IINST) * 230) + " W"
+        // }
+        if(eventBody.PAPP) {
+          document.getElementById("teleinfoPAPP").innerHTML = Number(eventBody.PAPP) + " W"
+        }
+        if(eventBody.HCHP) {
+          document.getElementById("teleinfoHCHP").innerHTML = "HP : " + (Number(eventBody.HCHP) / 1000) + " kWh"
+        }
+        if(eventBody.HCHC) {
+          document.getElementById("teleinfoHCHC").innerHTML = "HC : " + (Number(eventBody.HCHC) / 1000) + " kWh"
+        }
+        if(eventBody.PTEC) {
+          document.getElementById("teleinfoPTEC").innerHTML = eventBody.PTEC
+        }
+        // if(eventBody.ADPS) {
+        //   document.getElementById("teleinfoADPS").innerHTML = eventBody.ADPS
+        // }
+        // if(eventBody.HHPHC) {
+        //   document.getElementById("teleinfoHHPHC").innerHTML = eventBody.HHPHC
+        // }
+      }
+
+      function tableRelaysAdd(relay) {
+        buttonImageFile = (relay.value == 0 ? "off.svg" : "on.svg")
+        buttonImage = "<img src=\"/" + buttonImageFile +"\" height=\"40\" width=\"32\"/>"
+
+        $("#tableRelays tbody").append("<tr>" +
+            "<td>" + relay.description +"</td>" +
+            "<td>" + 
+              "<button id=\"switch" + relay.id + "\" onclick=\"relaySwitch(" + relay.id + ")\">" + 
+                buttonImage +
+              "</button>" +
+            "</td>" +
+            "</tr>");
+      }
+      
+      function relaySwitch(id) {
+        console.log('GET relays/set?' + id);
+        ws.send('relays/set?' + id + "=-1");
+      }
+
+      function relayReset() {
+        console.log('GET relays/reset');
+        ws.send('relays/reset');
+      }
+
+      function relayTest() {
+        console.log('GET relays/test');
+        ws.send('relays/test');
+      }
+
+      function readTH() {
+        console.log('GET sensors');
+        ws.send('sensors');
+      }
+
+      function readTime() {
+        console.log('GET system');
+        ws.send('system');
+      }
+      
+    </script>
+  </head>
+  <body>
+    <table id="tableGlobal">
+      <thead>
+        <tr>
+          <th>Control</th>
+          <th>Temp/Humi</th>
+          <!-- <th>Power (I)</th> -->
+          <th>Puissance</th>
+          <th>Compteurs</th>
+          <th>Periode</th>
+          <!-- <th>Alert</th> -->
+          <!-- <th>Groupe Horaire</th> -->
+          <th>Time</th>
+          <th>Heap</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><button id="test" onclick="relayTest()">Test</button><br/><button id="reset" onclick="relayReset()">Reset</button></td>
+          <td id="sensorsTH"></td>
+          <!-- <td id="teleinfoIINST"></td> -->
+          <td id="teleinfoPAPP"></td>
+          <td><div id="teleinfoHCHP"></div><br/><div id="teleinfoHCHC"></div></td>          
+          <td id="teleinfoPTEC"></td>
+          <!-- <td id="teleinfoADPS"></td> -->
+          <!-- <td id="teleinfoHHPHC"></td> -->
+          <td id="systemTime"></td>
+          <td id="systemHeap"></td>
+        </tr>
+      </tbody> 
+    </table>
+    <table id="tableRelays">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody> 
+    </table>
+    </br>
+    
+  </body>
+</html>
