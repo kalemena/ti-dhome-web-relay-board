@@ -43,8 +43,29 @@ unsigned int relayState = 0;
 HardwareSerial TeleInfo(2);  // Teleinfo Serial UART1/Serial2 pins 16,17
 TInfo          tinfo;        // Teleinfo object
 
-#define DEBUG false
-#define Serial if(DEBUG)Serial
+// ===== LOGGING
+#define LOG_NONE  0
+#define LOG_ERROR 1
+#define LOG_WARN  2
+#define LOG_INFO  3
+#define LOG_DEBUG 4
+
+#ifndef LOG_LEVEL
+#define LOG_LEVEL LOG_DEBUG
+#endif
+
+#define LOGE(fmt, ...)  Serial.printf("[E] " fmt "\n", ##__VA_ARGS__)
+#define LOGW(fmt, ...)  Serial.printf("[W] " fmt "\n", ##__VA_ARGS__)
+#define LOGI(fmt, ...)  Serial.printf("[I] " fmt "\n", ##__VA_ARGS__)
+#if LOG_LEVEL >= LOG_DEBUG
+#define LOGD(fmt, ...)  Serial.printf("[D] " fmt "\n", ##__VA_ARGS__)
+#define LOGD_RAW(x)     Serial.print(x)
+#define LOGD_RAWLN(x)   Serial.println(x)
+#else
+#define LOGD(fmt, ...)
+#define LOGD_RAW(x)
+#define LOGD_RAWLN(x)
+#endif
 
 // ===== CONFIGURATION
 
@@ -57,7 +78,7 @@ void setup() {
   Serial.setDebugOutput(true);
 
   Serial.println();
-  Serial.println("Initializing ...");
+  LOGI("Initializing ...");
   Serial.println();
 
   delay(100);
@@ -74,10 +95,10 @@ void setup() {
 
   // ===== File System
   if(!SPIFFS.begin(false)){
-    Serial.println("SPIFFS Mount Failed");
+    LOGE("SPIFFS Mount Failed");
     return;
   } else {
-    Serial.println("SPIFFS Mount OK");
+    LOGI("SPIFFS Mount OK");
   }
   listDir(SPIFFS, "/", 3);
 
@@ -100,11 +121,11 @@ void setup() {
     i++;
     if(!isHTU21Found) {
       if(!htu.begin()) {
-        Serial.println("Couldn't find sensor ...");
+        LOGW("Couldn't find sensor ...");
         delay(100);
       } else {
         isHTU21Found = true;
-        Serial.println("HTU21D Sensor found !");
+        LOGI("HTU21D Sensor found !");
       }
     }
   }
@@ -122,17 +143,16 @@ void setup() {
   delay(100);
 
   // ===== WiFi
-  Serial.println("===========");
-  Serial.printf("Connecting to %s\n", ssid);
+  LOGI("===========");
+  LOGI("Connecting to %s", ssid);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
   Serial.println("");
-  Serial.println("WiFi connected.");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
+  LOGI("WiFi connected.");
+  LOGI("IP address: %s", WiFi.localIP().toString().c_str());
 
   // ===== Controllers
   server.on("/", []() {
@@ -146,7 +166,7 @@ void setup() {
 
   // ===== mDNS
   if(!MDNS.begin(host)) {
-     Serial.println("Error starting mDNS");
+     LOGE("Error starting mDNS");
      return;
   }
   // Add service to mDNS
@@ -186,31 +206,31 @@ void hexdump(const void *mem, uint32_t len, uint8_t cols = 16) {
 }
 
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
-    Serial.printf("Listing directory: %s\r\n", dirname);
+    LOGD("Listing directory: %s", dirname);
 
     File root = fs.open(dirname);
     if(!root){
-        Serial.println("- failed to open directory");
+        LOGD("- failed to open directory");
         return;
     }
     if(!root.isDirectory()){
-        Serial.println(" - not a directory");
+        LOGD(" - not a directory");
         return;
     }
 
     File file = root.openNextFile();
     while(file){
         if(file.isDirectory()){
-            Serial.print("  DIR : ");
-            Serial.println(file.name());
+            LOGD_RAW("  DIR : ");
+            LOGD_RAWLN(file.name());
             if(levels){
                 listDir(fs, file.name(), levels -1);
             }
         } else {
-            Serial.print("  FILE: ");
-            Serial.print(file.name());
-            Serial.print("\tSIZE: ");
-            Serial.println(file.size());
+            LOGD_RAW("  FILE: ");
+            LOGD_RAW(file.name());
+            LOGD_RAW("\tSIZE: ");
+            LOGD_RAWLN(file.size());
         }
         file = root.openNextFile();
     }
@@ -248,7 +268,7 @@ unsigned long getTime() {
 String renderLocalTime() {
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
-    Serial.println("Failed to obtain time");
+    LOGW("Failed to obtain time");
     return "";
   }
 
@@ -285,7 +305,7 @@ int operation_relay_set(int relayNb, int relayStateWanted) {
   int thisRelayState = (relayState >> relayNb) & 1;
   int relayStateResponse = thisRelayState;
   
-  Serial.println("Relay " + String(relayNb) + "(" + relayStateWanted + ") => " + String(thisRelayState));
+  LOGD("Relay %d(%d) => %d", relayNb, relayStateWanted, thisRelayState);
 
   // switch on
   if(thisRelayState == 0 && relayStateWanted != 0) {
@@ -299,7 +319,7 @@ int operation_relay_set(int relayNb, int relayStateWanted) {
     relayStateResponse = 0;
   }
   
-  Serial.println("Relays = " + String(relayState));  
+  LOGD("Relays = %d", relayState);
   operation_relay_set_internal(relayState);
 
   websocket_broadcast_relay(relayNb, relayStateResponse);
@@ -333,7 +353,7 @@ void operation_reset() {
 void operation_th() {
   lastTemperature = round(htu.readTemperature()*100)/100.0;
   lastHumidity = round(htu.readHumidity()*100)/100.0;
-  Serial.printf("Temp=%.2f C° / Humidity=%.2f \%\n", lastTemperature, lastHumidity);
+  LOGD("Temp=%.2f C° / Humidity=%.2f %%", lastTemperature, lastHumidity);
 }
 
 // ===== JSON
@@ -407,7 +427,7 @@ void controller_handleNotFound() {
 }
 
 bool controller_file_read(String path){
-  Serial.println("handleFileRead: " + path);
+  LOGD("handleFileRead: %s", path.c_str());
   if(path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);
   String pathWithGz = path + ".gz";
@@ -466,8 +486,7 @@ Comments: compteur de secondes basique sans controle de dépassement
           pas fiable du tout, dont acte !!!
 ====================================================================== */
 void printUptime(void) {
-  Serial.print(millis()/1000);
-  Serial.print(F("s\t"));
+  LOGD_RAW(String(millis()/1000) + "s\t");
 }
 
 /* ======================================================================
@@ -484,15 +503,15 @@ Comments: should have been initialised in the main sketch with a
 ====================================================================== */
 void ADPSCallback(uint8_t phase) {
   printUptime();
-
-  // Monophasé
+#if LOG_LEVEL >= LOG_DEBUG
   if (phase == 0 ) {
-    Serial.println(F("ADPS"));
+    LOGD_RAWLN("ADPS");
   }
   else {
-    Serial.print(F("ADPS PHASE #"));
-    Serial.println('0' + phase);
+    LOGD_RAW("ADPS PHASE #");
+    LOGD_RAWLN(String('0' + phase));
   }
+#endif
 }
 
 /* ======================================================================
