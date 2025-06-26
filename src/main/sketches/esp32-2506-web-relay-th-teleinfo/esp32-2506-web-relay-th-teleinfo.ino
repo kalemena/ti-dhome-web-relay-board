@@ -18,6 +18,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <WebSocketsServer.h>
+#include "esp_chip_info.h"
 WebServer server(80);
 WebSocketsServer webSocket = WebSocketsServer(81);
 
@@ -366,7 +367,7 @@ void json_system(JsonObject system) {
   system["chip-bluetooth"] = chipBL;
   system["chip-id"] = chipId;
   system["heap"] = ESP.getFreeHeap();
-  system["flash-size"] = spi_flash_get_chip_size()/1024;
+  system["flash-size"] = ESP.getFlashChipSize()/1024;
   system["flash-type"] = String((chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embeded" : "external");
   system["time-iso"] = renderLocalTime();
 }
