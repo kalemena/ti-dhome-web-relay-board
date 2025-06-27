@@ -187,6 +187,25 @@ void loop(){
     tinfo.process(c);
   }
   
+  // WiFi reconnect
+  static unsigned long lastWifiCheck = 0;
+  if (WiFi.status() != WL_CONNECTED) {
+    if (millis() - lastWifiCheck > 5000) {
+      LOGW("WiFi disconnected, reconnecting...");
+      WiFi.reconnect();
+      lastWifiCheck = millis();
+    }
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    static bool mdnsReady = false;
+    if (!mdnsReady && MDNS.begin(host)) {
+      MDNS.addService("http", "tcp", 80);
+      mdnsReady = true;
+      LOGI("mDNS restarted");
+    }
+  }
+  
   server.handleClient();
   webSocket.loop(); 
 }
