@@ -180,11 +180,9 @@ void setup() {
 }
 
 void loop(){
-  // Teleinfo
-  static char c;
-  if ( TeleInfo.available() ) {
-    c = TeleInfo.read();
-    tinfo.process(c);
+  // Teleinfo - drain full UART buffer to avoid byte loss
+  while (TeleInfo.available()) {
+    tinfo.process(TeleInfo.read());
   }
   
   // WiFi reconnect
