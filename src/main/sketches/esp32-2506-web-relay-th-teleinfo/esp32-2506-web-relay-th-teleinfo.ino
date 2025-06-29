@@ -8,7 +8,7 @@
 
 #include <Arduino.h>
 #include "FS.h"
-#include "SPIFFS.h"
+#include "LittleFS.h"
 
 #include "time.h"
 
@@ -95,13 +95,13 @@ void setup() {
   delay(100);
 
   // ===== File System
-  if(!SPIFFS.begin(false)){
-    LOGE("SPIFFS Mount Failed");
+  if(!LittleFS.begin(false)){
+    LOGE("LittleFS Mount Failed");
     return;
   } else {
-    LOGI("SPIFFS Mount OK");
+    LOGI("LittleFS Mount OK");
   }
-  listDir(SPIFFS, "/", 3);
+  listDir(LittleFS, "/", 3);
 
   delay(100);
 
@@ -449,10 +449,10 @@ bool controller_file_read(String path){
   if(path.endsWith("/")) path += "index.htm";
   String contentType = getContentType(path);
   String pathWithGz = path + ".gz";
-  if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)){
-    if(SPIFFS.exists(pathWithGz))
+  if(LittleFS.exists(pathWithGz) || LittleFS.exists(path)){
+    if(LittleFS.exists(pathWithGz))
       path += ".gz";
-    File file = SPIFFS.open(path, "r");
+    File file = LittleFS.open(path, "r");
     size_t sent = server.streamFile(file, contentType);
     file.close();
     return true;
