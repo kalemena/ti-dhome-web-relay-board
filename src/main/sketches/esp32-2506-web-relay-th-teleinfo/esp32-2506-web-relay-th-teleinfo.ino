@@ -163,6 +163,7 @@ void setup() {
   server.on("/status", HTTP_GET, controller_status);
   server.on("/test", HTTP_GET, controller_test);
   server.on("/relays/set", HTTP_GET, controller_relay_set);
+  server.on("/metrics", HTTP_GET, controller_metrics);
   server.onNotFound(controller_handleNotFound); 
 
   // ===== mDNS
@@ -489,6 +490,78 @@ void controller_relay_set() {
   json += "}";
   
   server.send(200, "text/plain", json);
+}
+
+// ===== PROMETHEUS METRICS
+
+void build_metrics_teleinfo(String &body) {
+  ValueList * me = tinfo.getList();
+  if (!me) return;
+
+  while (me->next) {
+    me = me->next;
+    if (!me->value || !strlen(me->value)) continue;
+
+    boolean isNumber = true;
+    char * p = me->value;
+    while (*p && isNumber) {
+      if (*p < '0' || *p > '9') isNumber = false;
+      p++;
+    }
+
+    String key = String("teleinfo_") + String(me->name);
+    key.toLowerCase();
+    key.replace("-", "_");
+    key.replace(" ", "_");
+
+    if (isNumber) {
+      body += "# HELP " + key + " Teleinfo metric\n";
+      body += "# TYPE " + key + " gauge\n";
+      body += key + " " + String(atol(me->value)) + "\n";
+    } else {
+      body += "# HELP " + key + " Teleinfo info\n";
+      body += "# TYPE " + key + " gauge\n";
+      body += key + "{value=\"" + String(me->value) + "\"} 1\n";
+    }
+  }
+}
+
+void controller_metrics() {
+  String body;
+
+  // --- System
+  body += "# HELP esp_heap_bytes Free heap memory\n";
+  body += "# TYPE esp_heap_bytes gauge\n";
+  body += "esp_heap_bytes " + String(ESP.getFreeHeap()) + "\n";
+
+  body += "# HELP esp_uptime_seconds Device uptime\n";
+  body += "# TYPE esp_uptime_seconds gauge\n";
+  body += "esp_uptime_seconds " + String(millis() / 1000) + "\n";
+
+  // --- Sensors
+  if (isHTU21Found) {
+    operation_th();
+    body += "# HELP esp_temperature_celsius Temperature\n";
+    body += "# TYPE esp_temperature_celsius gauge\n";
+    body += "esp_temperature_celsius " + String(lastTemperature) + "\n";
+
+    body += "# HELP esp_humidity_percent Relative humidity\n";
+    body += "# TYPE esp_humidity_percent gauge\n";
+    body += "esp_humidity_percent " + String(lastHumidity) + "\n";
+  }
+
+  // --- Relays
+  body += "# HELP esp_relay_state Relay state (0=off, 1=on)\n";
+  body += "# TYPE esp_relay_state gauge\n";
+  for (int i = 0; i < 16; i++) {
+    int state = (relayState >> i) & 1;
+    body += "esp_relay_state{id=\"" + String(i) + "\",description=\"" + sensors[i] + "\"} " + String(state) + "\n";
+  }
+
+  // --- Teleinfo
+  build_metrics_teleinfo(body);
+
+  server.send(200, "text/plain; version=0.0.4", body);
 }
 
 // ===== TELEINFO
