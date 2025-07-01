@@ -70,6 +70,10 @@ TInfo          tinfo;        // Teleinfo object
 
 // ===== CONFIGURATION
 
+#if __has_include("secrets.h")
+#include "secrets.h"
+#endif
+
 #include "settings.h"
 
 // ===== SETUP

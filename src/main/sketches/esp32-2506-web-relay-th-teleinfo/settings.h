@@ -1,6 +1,12 @@
 // Webserver Config
-const char *ssid = "<ssid>";
-const char *password = "<password>";
+#ifndef SECRET_SSID
+#define SECRET_SSID "<ssid>"
+#endif
+#ifndef SECRET_PASS
+#define SECRET_PASS "<password>"
+#endif
+const char *ssid = SECRET_SSID;
+const char *password = SECRET_PASS;
 const char* host = "ioteleinfo";
 
 // NTP
