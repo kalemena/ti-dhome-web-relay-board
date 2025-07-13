@@ -131,6 +131,19 @@ include::iterations.adoc[Iterations page]
 
 endif::[]
 
+== Arduino CLI tips
+
+```bash
+% export BOARD=esp32:esp32:d1_mini32
+% export SKETCH=./src/main/sketches/esp32-01-led/esp32-01-led.ino
+% export PORT=/dev/cu.usbserial-110
+
+% arduino-cli compile --fqbn ${BOARD} ${SKETCH} \
+  && arduino-cli upload --fqbn ${BOARD} --port ${PORT} ${SKETCH}
+
+% arduino-cli monitor --port ${PORT} --config baudrate=115200
+```
+
 == Links
 
 Other interesting links for more specific heater oriented board:
